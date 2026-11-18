@@ -79,7 +79,15 @@ function ServicesBrowser() {
 
   const [searchInput, setSearchInput] = useState(search);
   const [result, setResult] = useState<ServiceListResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [failure, setFailure] = useState<{ key: string; message: string } | null>(null);
+  const [fetchedKey, setFetchedKey] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
+
+  // Identity of the current request — when it changes we show the skeleton
+  // until the matching response arrives (no sync setState in effects).
+  const requestKey = `${search}|${category}|${mode}|${sort}|${page}|${attempt}`;
+  const loading = fetchedKey !== requestKey;
+  const error = failure && failure.key === requestKey ? failure.message : null;
 
   /** Applies filter changes to the URL (single source of truth). */
   const update = useCallback(
@@ -108,8 +116,6 @@ function ServicesBrowser() {
   // Fetch whenever the URL filters change.
   useEffect(() => {
     let cancelled = false;
-    setResult(null);
-    setError(null);
     api<ServiceListResponse>("/api/services", {
       auth: false,
       query: {
@@ -122,15 +128,24 @@ function ServicesBrowser() {
       },
     })
       .then((res) => {
-        if (!cancelled) setResult(res);
+        if (!cancelled) {
+          setResult(res);
+          setFetchedKey(requestKey);
+        }
       })
       .catch((err: unknown) => {
-        if (!cancelled) setError(err instanceof Error ? err.message : "Failed to load services");
+        if (!cancelled) {
+          setFailure({
+            key: requestKey,
+            message: err instanceof Error ? err.message : "Failed to load services",
+          });
+          setFetchedKey(requestKey);
+        }
       });
     return () => {
       cancelled = true;
     };
-  }, [search, category, mode, sort, page]);
+  }, [requestKey, search, category, mode, sort, page]);
 
   const totalPages = result?.pages ?? 1;
 
@@ -197,13 +212,13 @@ function ServicesBrowser() {
       {error && (
         <div className="py-16 text-center">
           <p className="text-sm text-destructive">{error}</p>
-          <Button className="mt-4" variant="outline" onClick={() => update({})}>
+          <Button className="mt-4" variant="outline" onClick={() => setAttempt((value) => value + 1)}>
             Try again
           </Button>
         </div>
       )}
 
-      {!error && result === null && (
+      {!error && loading && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: LIMIT }).map((_, index) => (
             <div key={index} className="space-y-3 rounded-lg border p-4">
@@ -216,7 +231,7 @@ function ServicesBrowser() {
         </div>
       )}
 
-      {!error && result !== null && result.services.length === 0 && (
+      {!error && !loading && result !== null && result.services.length === 0 && (
         <EmptyState
           icon={SearchXIcon}
           title="No services found"
@@ -235,7 +250,7 @@ function ServicesBrowser() {
         </EmptyState>
       )}
 
-      {!error && result !== null && result.services.length > 0 && (
+      {!error && !loading && result !== null && result.services.length > 0 && (
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {result.services.map((service) => (

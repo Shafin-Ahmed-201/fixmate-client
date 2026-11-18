@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Loader2Icon, SaveIcon } from "lucide-react";
 import { toast } from "sonner";
 
@@ -26,26 +26,42 @@ import type { Role, User } from "@/lib/types";
 /** Editable profile: name, phone, area, bio and avatar. */
 export default function ProfilePage() {
   const { data: session, isPending, refetch } = authClient.useSession();
-  const user = session?.user;
 
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [area, setArea] = useState("");
-  const [bio, setBio] = useState("");
-  const [image, setImage] = useState("");
-  const [hydrated, setHydrated] = useState(false);
+  if (isPending || !session?.user) {
+    return (
+      <div className="space-y-4">
+        <div className="h-8 w-48 animate-pulse rounded-md bg-muted" />
+        <div className="h-80 animate-pulse rounded-lg bg-muted" />
+      </div>
+    );
+  }
+
+  return <ProfileForm user={session.user} refetch={refetch} />;
+}
+
+function ProfileForm({
+  user,
+  refetch,
+}: {
+  user: {
+    name: string;
+    email: string;
+    image?: string | null;
+    role: string;
+    phone?: string | null;
+    area?: string | null;
+    bio?: string | null;
+  };
+  refetch: () => Promise<unknown>;
+}) {
+  const [name, setName] = useState(user.name ?? "");
+  const [phone, setPhone] = useState(user.phone ?? "");
+  const [area, setArea] = useState(user.area ?? "");
+  const [bio, setBio] = useState(user.bio ?? "");
+  const [image, setImage] = useState(user.image ?? "");
   const [saving, setSaving] = useState(false);
 
-  // Hydrate the form once the session arrives.
-  useEffect(() => {
-    if (!user || hydrated) return;
-    setName(user.name ?? "");
-    setPhone((user.phone as string) ?? "");
-    setArea((user.area as string) ?? "");
-    setBio((user.bio as string) ?? "");
-    setImage(user.image ?? "");
-    setHydrated(true);
-  }, [user, hydrated]);
+  const role = user.role as Role;
 
   async function handleSave(event: React.FormEvent) {
     event.preventDefault();
@@ -76,17 +92,6 @@ export default function ProfilePage() {
     }
   }
 
-  if (isPending || !user) {
-    return (
-      <div className="space-y-4">
-        <div className="h-8 w-48 animate-pulse rounded-md bg-muted" />
-        <div className="h-80 animate-pulse rounded-lg bg-muted" />
-      </div>
-    );
-  }
-
-  const role = user.role as Role;
-
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
@@ -105,7 +110,7 @@ export default function ProfilePage() {
           </Avatar>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="truncate font-medium">{name || user.name}</p>
+              <p className="truncate font-medium">{name}</p>
               <RoleBadge role={role} />
             </div>
             <p className="truncate text-sm text-muted-foreground">{user.email}</p>
