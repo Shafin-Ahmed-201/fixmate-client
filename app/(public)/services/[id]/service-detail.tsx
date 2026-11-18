@@ -87,6 +87,8 @@ export function ServiceDetail({ serviceId }: { serviceId: string }) {
       router.push(`/sign-in?redirect=${encodeURIComponent(`/services/${serviceId}`)}`);
       return;
     }
+    // Pre-fill with the profile phone so booking never fails server-side.
+    if (!phone) setPhone(session.user.phone ?? "");
     setBookingOpen(true);
   }
 
@@ -99,6 +101,8 @@ export function ServiceDetail({ serviceId }: { serviceId: string }) {
       return toast.error("Please pick a future date");
     if (description.trim().length < MIN_DESCRIPTION_LENGTH)
       return toast.error(`Describe the problem in at least ${MIN_DESCRIPTION_LENGTH} characters`);
+    if (!phone.trim() && !session?.user?.phone)
+      return toast.error("Add a phone number so the technician can contact you");
 
     setSubmitting(true);
     try {
@@ -107,7 +111,7 @@ export function ServiceDetail({ serviceId }: { serviceId: string }) {
         body: {
           serviceId: service._id,
           address: address.trim(),
-          phone: phone.trim() || undefined,
+          phone: phone.trim() || session?.user?.phone || undefined,
           preferredDate: new Date(`${preferredDate}T09:00:00`).toISOString(),
           problemDescription: description.trim(),
         },
@@ -291,7 +295,7 @@ export function ServiceDetail({ serviceId }: { serviceId: string }) {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <Label htmlFor="booking-phone">Phone (optional)</Label>
+                <Label htmlFor="booking-phone">Phone *</Label>
                 <Input
                   id="booking-phone"
                   type="tel"
@@ -300,6 +304,9 @@ export function ServiceDetail({ serviceId }: { serviceId: string }) {
                   onChange={(event) => setPhone(event.target.value)}
                   disabled={submitting}
                 />
+                <p className="text-xs text-muted-foreground">
+                  Pre-filled from your profile — the technician will call this number.
+                </p>
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="booking-date">Preferred date *</Label>
