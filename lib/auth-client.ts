@@ -11,12 +11,15 @@ export const authClient = createAuthClient({
         },
         phone: {
           type: "string",
+          required: false,
         },
         area: {
           type: "string",
+          required: false,
         },
         bio: {
           type: "string",
+          required: false,
         },
       },
     }),
