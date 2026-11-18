@@ -37,12 +37,18 @@ import { cn } from "cn";
 
 const MIN_DESCRIPTION_LENGTH = 20;
 
-/** Tomorrow as a yyyy-mm-dd string (HTML date input min). */
-function tomorrow() {
+/** Local yyyy-mm-dd for today (+ optional day offset) — timezone-safe. */
+function dateInputValue(offsetDays = 0) {
   const date = new Date();
-  date.setDate(date.getDate() + 1);
-  return date.toISOString().split("T")[0];
+  date.setDate(date.getDate() + offsetDays);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
+
+/** Earliest allowed date matches the server rule: today or later. */
+const MIN_DATE = dateInputValue(0);
 
 export function ServiceDetail({ serviceId }: { serviceId: string }) {
   const router = useRouter();
@@ -55,7 +61,7 @@ export function ServiceDetail({ serviceId }: { serviceId: string }) {
 
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
-  const [preferredDate, setPreferredDate] = useState(tomorrow());
+  const [preferredDate, setPreferredDate] = useState(dateInputValue(1));
   const [description, setDescription] = useState("");
 
   useEffect(() => {
@@ -97,8 +103,8 @@ export function ServiceDetail({ serviceId }: { serviceId: string }) {
     if (!service) return;
 
     if (!address.trim()) return toast.error("Please enter the service address");
-    if (!preferredDate || preferredDate < tomorrow())
-      return toast.error("Please pick a future date");
+    if (!preferredDate || preferredDate < MIN_DATE)
+      return toast.error("Please pick today or a later date");
     if (description.trim().length < MIN_DESCRIPTION_LENGTH)
       return toast.error(`Describe the problem in at least ${MIN_DESCRIPTION_LENGTH} characters`);
     if (!phone.trim() && !session?.user?.phone)
@@ -313,7 +319,7 @@ export function ServiceDetail({ serviceId }: { serviceId: string }) {
                 <Input
                   id="booking-date"
                   type="date"
-                  min={tomorrow()}
+                  min={MIN_DATE}
                   value={preferredDate}
                   onChange={(event) => setPreferredDate(event.target.value)}
                   disabled={submitting}

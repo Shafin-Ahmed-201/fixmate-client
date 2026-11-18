@@ -31,9 +31,14 @@ const STEPS = [
     text: "Choose a preferred date and describe the problem in seconds.",
   },
   {
+    icon: WrenchIcon,
+    title: "Track the job",
+    text: "Follow every status change live — requested, accepted, in progress.",
+  },
+  {
     icon: CreditCardIcon,
     title: "Pay securely",
-    text: "Complete payment with Stripe after the job is done.",
+    text: "Complete payment with Stripe only after the job is done.",
   },
 ];
 
@@ -110,7 +115,7 @@ export default function HomePage() {
             Three steps from problem to fixed.
           </p>
         </div>
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map((step, index) => (
             <Card key={step.title} className="gap-0 py-5 text-center">
               <CardContent className="flex flex-col items-center gap-2 px-5">
