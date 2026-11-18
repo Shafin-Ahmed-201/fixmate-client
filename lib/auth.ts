@@ -1,22 +1,22 @@
-import { betterAuth } from "better-auth";
-import { MongoClient } from "mongodb";
-import { mongodbAdapter } from "@better-auth/mongo-adapter";
-import { jwt } from "better-auth/plugins";
+import { betterAuth } from "better-auth"
+import { MongoClient } from "mongodb"
+import { mongodbAdapter } from "@better-auth/mongo-adapter"
+import { jwt } from "better-auth/plugins"
 
-const client = new MongoClient(process.env.MONGODB_URI as string);
-const db = client.db('fixmateDB');
+const client = new MongoClient(process.env.MONGODB_URI as string)
+const db = client.db("fixmateDB")
 
 export const auth = betterAuth({
-  baseURL: process.env.BETTER_AUTH_URL, 
-    socialProviders: {
-        google: { 
-            clientId: process.env.GOOGLE_CLIENT_ID as string, 
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string, 
-        }, 
+  baseURL: process.env.BETTER_AUTH_URL,
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     },
-     emailAndPassword: { 
-    enabled: true, 
-  }, 
+  },
+  emailAndPassword: {
+    enabled: true,
+  },
   // Additional user profile fields
   user: {
     additionalFields: {
@@ -61,4 +61,4 @@ export const auth = betterAuth({
   database: mongodbAdapter(db, {
     client,
   }),
-});
+})

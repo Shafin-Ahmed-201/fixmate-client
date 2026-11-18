@@ -1,70 +1,70 @@
-"use client";
+"use client"
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { Loader2Icon, PlusSquareIcon } from "lucide-react";
-import { toast } from "sonner";
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { Loader2Icon, PlusSquareIcon } from "lucide-react"
+import { toast } from "sonner"
 
-import { ImageUpload } from "@/components/image-upload";
-import { Button } from "@/components/ui/button";
+import { ImageUpload } from "@/components/image-upload"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { api, ApiError } from "@/lib/api";
-import { CATEGORIES, SERVICE_MODES } from "@/lib/constants";
-import type { Service, ServiceCategory, ServiceMode } from "@/lib/types";
+} from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
+import { api, ApiError } from "@/lib/api"
+import { CATEGORIES, SERVICE_MODES } from "@/lib/constants"
+import type { Service, ServiceCategory, ServiceMode } from "@/lib/types"
 
 /** Create a new service listing (starts in admin review). */
 export default function AddServicePage() {
-  const router = useRouter();
+  const router = useRouter()
 
-  const [title, setTitle] = useState("");
-  const [category, setCategory] = useState<ServiceCategory>(CATEGORIES[0]);
-  const [description, setDescription] = useState("");
-  const [priceInput, setPriceInput] = useState("");
-  const [estimatedDuration, setEstimatedDuration] = useState("");
-  const [serviceMode, setServiceMode] = useState<ServiceMode>(SERVICE_MODES[0]);
-  const [serviceArea, setServiceArea] = useState("");
-  const [image, setImage] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+  const [title, setTitle] = useState("")
+  const [category, setCategory] = useState<ServiceCategory>(CATEGORIES[0])
+  const [description, setDescription] = useState("")
+  const [priceInput, setPriceInput] = useState("")
+  const [estimatedDuration, setEstimatedDuration] = useState("")
+  const [serviceMode, setServiceMode] = useState<ServiceMode>(SERVICE_MODES[0])
+  const [serviceArea, setServiceArea] = useState("")
+  const [image, setImage] = useState("")
+  const [submitting, setSubmitting] = useState(false)
 
   async function handleSubmit(event: React.FormEvent) {
-    event.preventDefault();
+    event.preventDefault()
 
     if (title.trim().length < 3) {
-      return toast.error("Title must be at least 3 characters");
+      return toast.error("Title must be at least 3 characters")
     }
     if (description.trim().length < 10) {
-      return toast.error("Description must be at least 10 characters");
+      return toast.error("Description must be at least 10 characters")
     }
     if (!(Number(priceInput) > 0)) {
-      return toast.error("Enter a valid base price");
+      return toast.error("Enter a valid base price")
     }
     if (!estimatedDuration.trim()) {
-      return toast.error("Estimated duration is required");
+      return toast.error("Estimated duration is required")
     }
     if (!category) {
-      return toast.error("Choose a category");
+      return toast.error("Choose a category")
     }
     if (!serviceMode) {
-      return toast.error("Choose a service mode");
+      return toast.error("Choose a service mode")
     }
 
-    setSubmitting(true);
+    setSubmitting(true)
     try {
       await api<{ success: boolean; service: Service }>("/api/services", {
         method: "POST",
@@ -78,17 +78,19 @@ export default function AddServicePage() {
           serviceArea: serviceArea.trim(),
           image: image.trim(),
         },
-      });
-      toast.success("Service submitted for review");
-      router.push("/dashboard/technician/my-services");
+      })
+      toast.success("Service submitted for review")
+      router.push("/dashboard/technician/my-services")
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
-        toast.error("Please sign in again");
+        toast.error("Please sign in again")
       } else {
-        toast.error(err instanceof Error ? err.message : "Could not create the service");
+        toast.error(
+          err instanceof Error ? err.message : "Could not create the service"
+        )
       }
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
   }
 
@@ -96,7 +98,7 @@ export default function AddServicePage() {
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Add a service</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="text-muted-foreground mt-1 text-sm">
           New services are reviewed by an admin before going live.
         </p>
       </div>
@@ -130,10 +132,15 @@ export default function AddServicePage() {
                 }
                 items={CATEGORIES.map((item) => ({ value: item, label: item }))}
               >
-                <SelectTrigger id="service-category" className="w-full" aria-label="Category">
+                <SelectTrigger
+                  id="service-category"
+                  className="w-full"
+                  aria-label="Category"
+                >
                   <SelectValue placeholder="Choose a category">
                     {(current: string) =>
-                      CATEGORIES.find((item) => item === current) ?? "Choose a category"
+                      CATEGORIES.find((item) => item === current) ??
+                      "Choose a category"
                     }
                   </SelectValue>
                 </SelectTrigger>
@@ -163,7 +170,7 @@ export default function AddServicePage() {
               <div className="space-y-1.5">
                 <Label htmlFor="service-price">Base price *</Label>
                 <div className="relative">
-                  <span className="pointer-events-none absolute inset-y-0 left-2.5 flex items-center text-xs text-muted-foreground">
+                  <span className="text-muted-foreground pointer-events-none absolute inset-y-0 left-2.5 flex items-center text-xs">
                     USD
                   </span>
                   <Input
@@ -200,12 +207,20 @@ export default function AddServicePage() {
                   onValueChange={(next) =>
                     setServiceMode((next ?? SERVICE_MODES[0]) as ServiceMode)
                   }
-                  items={SERVICE_MODES.map((item) => ({ value: item, label: item }))}
+                  items={SERVICE_MODES.map((item) => ({
+                    value: item,
+                    label: item,
+                  }))}
                 >
-                  <SelectTrigger id="service-mode" className="w-full" aria-label="Service mode">
+                  <SelectTrigger
+                    id="service-mode"
+                    className="w-full"
+                    aria-label="Service mode"
+                  >
                     <SelectValue placeholder="Choose a mode">
                       {(current: string) =>
-                        SERVICE_MODES.find((item) => item === current) ?? "Choose a mode"
+                        SERVICE_MODES.find((item) => item === current) ??
+                        "Choose a mode"
                       }
                     </SelectValue>
                   </SelectTrigger>
@@ -245,11 +260,15 @@ export default function AddServicePage() {
 
         <div className="mt-4 flex justify-end">
           <Button type="submit" disabled={submitting}>
-            {submitting ? <Loader2Icon className="animate-spin" /> : <PlusSquareIcon />}
+            {submitting ? (
+              <Loader2Icon className="animate-spin" />
+            ) : (
+              <PlusSquareIcon />
+            )}
             {submitting ? "Submitting…" : "Submit for review"}
           </Button>
         </div>
       </form>
     </div>
-  );
+  )
 }

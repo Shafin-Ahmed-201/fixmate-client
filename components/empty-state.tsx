@@ -1,6 +1,12 @@
-import type { LucideIcon } from "lucide-react";
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
-import { cn } from "cn";
+import type { LucideIcon } from "lucide-react"
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
+import { cn } from "cn"
 
 /** Friendly empty state used across lists and tables. */
 export function EmptyState({
@@ -10,11 +16,11 @@ export function EmptyState({
   children,
   className,
 }: {
-  icon: LucideIcon;
-  title: string;
-  description: string;
-  children?: React.ReactNode;
-  className?: string;
+  icon: LucideIcon
+  title: string
+  description: string
+  children?: React.ReactNode
+  className?: string
 }) {
   return (
     <Empty className={cn("py-10", className)}>
@@ -27,5 +33,5 @@ export function EmptyState({
       </EmptyHeader>
       {children}
     </Empty>
-  );
+  )
 }

@@ -1,12 +1,12 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import { CalendarIcon } from "lucide-react";
+import { useEffect, useState } from "react"
+import { CalendarIcon } from "lucide-react"
 
-import { StatusBadge } from "@/components/badges";
-import { EmptyState } from "@/components/empty-state";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { StatusBadge } from "@/components/badges"
+import { EmptyState } from "@/components/empty-state"
+import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Table,
   TableBody,
@@ -14,11 +14,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { api } from "@/lib/api";
-import { formatCurrency, formatDate } from "@/lib/format";
-import type { Booking, BookingStatus } from "@/lib/types";
-import { cn } from "cn";
+} from "@/components/ui/table"
+import { api } from "@/lib/api"
+import { formatCurrency, formatDate } from "@/lib/format"
+import type { Booking, BookingStatus } from "@/lib/types"
+import { cn } from "cn"
 
 const FILTERS: ("all" | BookingStatus)[] = [
   "all",
@@ -28,36 +28,38 @@ const FILTERS: ("all" | BookingStatus)[] = [
   "completed",
   "rejected",
   "cancelled",
-];
+]
 
 /** Admin bookings: read-only list of every request on the platform. */
 export default function AdminBookingsPage() {
-  const [bookings, setBookings] = useState<Booking[] | null>(null);
-  const [filter, setFilter] = useState<"all" | BookingStatus>("all");
-  const [error, setError] = useState<string | null>(null);
+  const [bookings, setBookings] = useState<Booking[] | null>(null)
+  const [filter, setFilter] = useState<"all" | BookingStatus>("all")
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    let cancelled = false;
+    let cancelled = false
     api<{ bookings: Booking[] }>("/api/admin/bookings")
       .then((res) => {
-        if (!cancelled) setBookings(res.bookings);
+        if (!cancelled) setBookings(res.bookings)
       })
       .catch((err: unknown) => {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Failed to load bookings");
+          setError(
+            err instanceof Error ? err.message : "Failed to load bookings"
+          )
         }
-      });
+      })
     return () => {
-      cancelled = true;
-    };
-  }, []);
+      cancelled = true
+    }
+  }, [])
 
   if (error) {
     return (
-      <p className="py-16 text-center text-sm text-destructive" role="alert">
+      <p className="text-destructive py-16 text-center text-sm" role="alert">
         {error}
       </p>
-    );
+    )
   }
 
   if (bookings === null) {
@@ -67,30 +69,39 @@ export default function AdminBookingsPage() {
         <Skeleton className="h-10 w-full rounded-lg" />
         <Skeleton className="h-64 rounded-lg" />
       </div>
-    );
+    )
   }
 
   const visible =
-    filter === "all" ? bookings : bookings.filter((booking) => booking.status === filter);
+    filter === "all"
+      ? bookings
+      : bookings.filter((booking) => booking.status === filter)
 
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">All bookings</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {bookings.length} booking{bookings.length === 1 ? "" : "s"} across the platform
+          <h1 className="text-2xl font-semibold tracking-tight">
+            All bookings
+          </h1>
+          <p className="text-muted-foreground mt-1 text-sm">
+            {bookings.length} booking{bookings.length === 1 ? "" : "s"} across
+            the platform
           </p>
         </div>
       </div>
 
       {/* Status filter chips */}
-      <div className="flex flex-wrap gap-2" role="group" aria-label="Filter bookings">
+      <div
+        className="flex flex-wrap gap-2"
+        role="group"
+        aria-label="Filter bookings"
+      >
         {FILTERS.map((value) => {
           const count =
             value === "all"
               ? bookings.length
-              : bookings.filter((booking) => booking.status === value).length;
+              : bookings.filter((booking) => booking.status === value).length
           return (
             <button
               key={value}
@@ -106,14 +117,18 @@ export default function AdminBookingsPage() {
             >
               {value.replace("-", " ")} ({count})
             </button>
-          );
+          )
         })}
       </div>
 
       {visible.length === 0 ? (
         <EmptyState
           icon={CalendarIcon}
-          title={filter === "all" ? "No bookings yet" : `No ${filter.replace("-", " ")} bookings`}
+          title={
+            filter === "all"
+              ? "No bookings yet"
+              : `No ${filter.replace("-", " ")} bookings`
+          }
           description={
             filter === "all"
               ? "Every request booked on the platform will appear here."
@@ -138,14 +153,16 @@ export default function AdminBookingsPage() {
               {visible.map((booking) => (
                 <TableRow key={booking._id}>
                   <TableCell className="max-w-52">
-                    <p className="truncate font-medium">{booking.serviceTitle}</p>
-                    <p className="truncate text-xs text-muted-foreground">
+                    <p className="truncate font-medium">
+                      {booking.serviceTitle}
+                    </p>
+                    <p className="text-muted-foreground truncate text-xs">
                       {booking.category}
                     </p>
                   </TableCell>
                   <TableCell className="max-w-44">
                     <p className="truncate text-sm">{booking.customerName}</p>
-                    <p className="truncate text-xs text-muted-foreground">
+                    <p className="text-muted-foreground truncate text-xs">
                       {booking.customerEmail}
                     </p>
                   </TableCell>
@@ -181,5 +198,5 @@ export default function AdminBookingsPage() {
         </div>
       )}
     </div>
-  );
+  )
 }

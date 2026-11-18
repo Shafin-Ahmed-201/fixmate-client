@@ -1,15 +1,20 @@
-"use client";
+"use client"
 
-import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
-import { CalendarIcon, CreditCardIcon, EyeIcon, XCircleIcon } from "lucide-react";
-import { toast } from "sonner";
+import Link from "next/link"
+import { useCallback, useEffect, useState } from "react"
+import {
+  CalendarIcon,
+  CreditCardIcon,
+  EyeIcon,
+  XCircleIcon,
+} from "lucide-react"
+import { toast } from "sonner"
 
-import { StatusBadge } from "@/components/badges";
-import { ConfirmDialog } from "@/components/confirm-dialog";
-import { EmptyState } from "@/components/empty-state";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/badges"
+import { ConfirmDialog } from "@/components/confirm-dialog"
+import { EmptyState } from "@/components/empty-state"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
   Table,
   TableBody,
@@ -17,12 +22,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Skeleton } from "@/components/ui/skeleton";
-import { api, ApiError } from "@/lib/api";
-import { formatCurrency, formatDate } from "@/lib/format";
-import type { Booking, BookingStatus } from "@/lib/types";
-import { cn } from "cn";
+} from "@/components/ui/table"
+import { Skeleton } from "@/components/ui/skeleton"
+import { api, ApiError } from "@/lib/api"
+import { formatCurrency, formatDate } from "@/lib/format"
+import type { Booking, BookingStatus } from "@/lib/types"
+import { cn } from "cn"
 
 const FILTERS: ("all" | BookingStatus)[] = [
   "all",
@@ -32,66 +37,71 @@ const FILTERS: ("all" | BookingStatus)[] = [
   "completed",
   "rejected",
   "cancelled",
-];
+]
 
 /** Customer bookings: filter by status, cancel requests, pay completed jobs. */
 export default function CustomerBookingsPage() {
-  const [bookings, setBookings] = useState<Booking[] | null>(null);
-  const [filter, setFilter] = useState<"all" | BookingStatus>("all");
-  const [cancelTarget, setCancelTarget] = useState<Booking | null>(null);
-  const [payingId, setPayingId] = useState<string | null>(null);
-  const [actionBusy, setActionBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [bookings, setBookings] = useState<Booking[] | null>(null)
+  const [filter, setFilter] = useState<"all" | BookingStatus>("all")
+  const [cancelTarget, setCancelTarget] = useState<Booking | null>(null)
+  const [payingId, setPayingId] = useState<string | null>(null)
+  const [actionBusy, setActionBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const load = useCallback(() => {
     api<{ bookings: Booking[] }>("/api/bookings/my")
       .then((res) => setBookings(res.bookings))
       .catch((err: unknown) =>
         setError(err instanceof Error ? err.message : "Failed to load bookings")
-      );
-  }, []);
+      )
+  }, [])
 
-  useEffect(load, [load]);
+  useEffect(load, [load])
 
   async function handleCancel() {
-    if (!cancelTarget) return;
-    setActionBusy(true);
+    if (!cancelTarget) return
+    setActionBusy(true)
     try {
-      await api(`/api/bookings/${cancelTarget._id}/cancel`, { method: "PATCH" });
-      toast.success("Booking cancelled");
-      setCancelTarget(null);
-      load();
+      await api(`/api/bookings/${cancelTarget._id}/cancel`, { method: "PATCH" })
+      toast.success("Booking cancelled")
+      setCancelTarget(null)
+      load()
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Cancellation failed");
+      toast.error(err instanceof Error ? err.message : "Cancellation failed")
     } finally {
-      setActionBusy(false);
+      setActionBusy(false)
     }
   }
 
   async function handlePay(booking: Booking) {
-    setPayingId(booking._id);
+    setPayingId(booking._id)
     try {
-      const res = await api<{ url: string }>("/api/payments/create-checkout-session", {
-        method: "POST",
-        body: { bookingId: booking._id },
-      });
-      window.location.assign(res.url);
+      const res = await api<{ url: string }>(
+        "/api/payments/create-checkout-session",
+        {
+          method: "POST",
+          body: { bookingId: booking._id },
+        }
+      )
+      window.location.assign(res.url)
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
-        toast.error("Please sign in again to pay");
+        toast.error("Please sign in again to pay")
       } else {
-        toast.error(err instanceof Error ? err.message : "Could not start checkout");
+        toast.error(
+          err instanceof Error ? err.message : "Could not start checkout"
+        )
       }
-      setPayingId(null);
+      setPayingId(null)
     }
   }
 
   if (error) {
     return (
-      <p className="py-16 text-center text-sm text-destructive" role="alert">
+      <p className="text-destructive py-16 text-center text-sm" role="alert">
         {error}
       </p>
-    );
+    )
   }
 
   if (bookings === null) {
@@ -101,18 +111,20 @@ export default function CustomerBookingsPage() {
         <Skeleton className="h-10 w-full rounded-lg" />
         <Skeleton className="h-64 rounded-lg" />
       </div>
-    );
+    )
   }
 
   const visible =
-    filter === "all" ? bookings : bookings.filter((booking) => booking.status === filter);
+    filter === "all"
+      ? bookings
+      : bookings.filter((booking) => booking.status === filter)
 
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">My bookings</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="text-muted-foreground mt-1 text-sm">
             {bookings.length} total request{bookings.length === 1 ? "" : "s"}
           </p>
         </div>
@@ -122,12 +134,16 @@ export default function CustomerBookingsPage() {
       </div>
 
       {/* Status filter chips */}
-      <div className="flex flex-wrap gap-2" role="group" aria-label="Filter bookings">
+      <div
+        className="flex flex-wrap gap-2"
+        role="group"
+        aria-label="Filter bookings"
+      >
         {FILTERS.map((value) => {
           const count =
             value === "all"
               ? bookings.length
-              : bookings.filter((booking) => booking.status === value).length;
+              : bookings.filter((booking) => booking.status === value).length
           return (
             <button
               key={value}
@@ -143,14 +159,18 @@ export default function CustomerBookingsPage() {
             >
               {value.replace("-", " ")} ({count})
             </button>
-          );
+          )
         })}
       </div>
 
       {visible.length === 0 ? (
         <EmptyState
           icon={CalendarIcon}
-          title={filter === "all" ? "No bookings yet" : `No ${filter.replace("-", " ")} bookings`}
+          title={
+            filter === "all"
+              ? "No bookings yet"
+              : `No ${filter.replace("-", " ")} bookings`
+          }
           description={
             filter === "all"
               ? "When you book a repair it will appear here with its live status."
@@ -181,8 +201,10 @@ export default function CustomerBookingsPage() {
               {visible.map((booking) => (
                 <TableRow key={booking._id}>
                   <TableCell className="max-w-52">
-                    <p className="truncate font-medium">{booking.serviceTitle}</p>
-                    <p className="truncate text-xs text-muted-foreground">
+                    <p className="truncate font-medium">
+                      {booking.serviceTitle}
+                    </p>
+                    <p className="text-muted-foreground truncate text-xs">
                       {booking.category}
                     </p>
                   </TableCell>
@@ -230,13 +252,17 @@ export default function CustomerBookingsPage() {
                             disabled={payingId === booking._id}
                           >
                             <CreditCardIcon />
-                            {payingId === booking._id ? "Redirecting…" : "Pay now"}
+                            {payingId === booking._id
+                              ? "Redirecting…"
+                              : "Pay now"}
                           </Button>
                         )}
                       {booking.status === "completed" &&
                         booking.paymentStatus === "paid" && (
                           <Button
-                            render={<Link href="/dashboard/customer/payments" />}
+                            render={
+                              <Link href="/dashboard/customer/payments" />
+                            }
                             size="xs"
                             variant="ghost"
                           >
@@ -255,7 +281,7 @@ export default function CustomerBookingsPage() {
       <ConfirmDialog
         open={cancelTarget !== null}
         onOpenChange={(open) => {
-          if (!open) setCancelTarget(null);
+          if (!open) setCancelTarget(null)
         }}
         title="Cancel this booking?"
         description={
@@ -269,5 +295,5 @@ export default function CustomerBookingsPage() {
         disabled={actionBusy}
       />
     </div>
-  );
+  )
 }

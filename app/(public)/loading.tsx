@@ -1,4 +1,4 @@
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/ui/skeleton"
 
 /** Route-level skeleton shown while public pages stream in. */
 export default function PublicLoading() {
@@ -17,5 +17,5 @@ export default function PublicLoading() {
         ))}
       </div>
     </div>
-  );
+  )
 }

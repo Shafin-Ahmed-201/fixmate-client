@@ -1,11 +1,11 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import { ReceiptTextIcon } from "lucide-react";
+import { useEffect, useState } from "react"
+import { ReceiptTextIcon } from "lucide-react"
 
-import { EmptyState } from "@/components/empty-state";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/empty-state"
+import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Table,
   TableBody,
@@ -13,38 +13,40 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { api } from "@/lib/api";
-import { formatCurrency, formatDateTime } from "@/lib/format";
-import type { Payment } from "@/lib/types";
+} from "@/components/ui/table"
+import { api } from "@/lib/api"
+import { formatCurrency, formatDateTime } from "@/lib/format"
+import type { Payment } from "@/lib/types"
 
 /** Admin transactions: read-only ledger of every Stripe payment. */
 export default function AdminTransactionsPage() {
-  const [payments, setPayments] = useState<Payment[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [payments, setPayments] = useState<Payment[] | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    let cancelled = false;
+    let cancelled = false
     api<{ payments: Payment[] }>("/api/admin/payments")
       .then((res) => {
-        if (!cancelled) setPayments(res.payments);
+        if (!cancelled) setPayments(res.payments)
       })
       .catch((err: unknown) => {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Failed to load transactions");
+          setError(
+            err instanceof Error ? err.message : "Failed to load transactions"
+          )
         }
-      });
+      })
     return () => {
-      cancelled = true;
-    };
-  }, []);
+      cancelled = true
+    }
+  }, [])
 
   if (error) {
     return (
-      <p className="py-16 text-center text-sm text-destructive" role="alert">
+      <p className="text-destructive py-16 text-center text-sm" role="alert">
         {error}
       </p>
-    );
+    )
   }
 
   if (payments === null) {
@@ -53,20 +55,22 @@ export default function AdminTransactionsPage() {
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-64 rounded-lg" />
       </div>
-    );
+    )
   }
 
   const totalRevenue = payments.reduce(
     (sum, payment) => sum + Number(payment.amount || 0),
     0
-  );
+  )
 
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Transactions</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Transactions
+          </h1>
+          <p className="text-muted-foreground mt-1 text-sm">
             {payments.length > 0
               ? `${formatCurrency(totalRevenue)} revenue across ${payments.length} payment${
                   payments.length === 1 ? "" : "s"
@@ -100,11 +104,13 @@ export default function AdminTransactionsPage() {
               {payments.map((payment) => (
                 <TableRow key={payment._id}>
                   <TableCell className="max-w-52">
-                    <p className="truncate font-medium">{payment.serviceTitle}</p>
+                    <p className="truncate font-medium">
+                      {payment.serviceTitle}
+                    </p>
                   </TableCell>
                   <TableCell className="max-w-40">
                     <p className="truncate text-sm">{payment.customerName}</p>
-                    <p className="truncate text-xs text-muted-foreground">
+                    <p className="text-muted-foreground truncate text-xs">
                       {payment.customerEmail}
                     </p>
                   </TableCell>
@@ -113,7 +119,7 @@ export default function AdminTransactionsPage() {
                   </TableCell>
                   <TableCell className="max-w-44">
                     <p
-                      className="truncate font-mono text-xs text-muted-foreground"
+                      className="text-muted-foreground truncate font-mono text-xs"
                       title={payment.transactionId ?? payment.stripeSessionId}
                     >
                       {payment.transactionId ?? payment.stripeSessionId}
@@ -140,5 +146,5 @@ export default function AdminTransactionsPage() {
         </div>
       )}
     </div>
-  );
+  )
 }

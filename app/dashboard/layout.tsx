@@ -1,8 +1,8 @@
-"use client";
+"use client"
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 import {
   CalendarIcon,
   ChevronDownIcon,
@@ -16,13 +16,13 @@ import {
   UserIcon,
   UsersIcon,
   WrenchIcon,
-} from "lucide-react";
+} from "lucide-react"
 
-import { Logo } from "@/components/logo";
-import { RoleBadge } from "@/components/badges";
-import { DashboardSkeleton } from "@/components/dashboard-skeleton";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/logo"
+import { RoleBadge } from "@/components/badges"
+import { DashboardSkeleton } from "@/components/dashboard-skeleton"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,64 +30,100 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu"
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet";
-import { invalidateToken } from "@/lib/api";
-import { authClient } from "@/lib/auth-client";
-import { dashboardHome } from "@/lib/constants";
-import { initials } from "@/lib/format";
-import type { Role } from "@/lib/types";
-import { cn } from "cn";
+} from "@/components/ui/sheet"
+import { invalidateToken } from "@/lib/api"
+import { authClient } from "@/lib/auth-client"
+import { dashboardHome } from "@/lib/constants"
+import { initials } from "@/lib/format"
+import type { Role } from "@/lib/types"
+import { cn } from "cn"
 
 interface NavLink {
-  href: string;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
+  href: string
+  label: string
+  icon: React.ComponentType<{ className?: string }>
 }
 
 const NAV: Record<Role, NavLink[]> = {
   customer: [
-    { href: "/dashboard/customer", label: "Overview", icon: LayoutDashboardIcon },
-    { href: "/dashboard/customer/bookings", label: "My bookings", icon: CalendarIcon },
-    { href: "/dashboard/customer/payments", label: "Payments", icon: CreditCardIcon },
+    {
+      href: "/dashboard/customer",
+      label: "Overview",
+      icon: LayoutDashboardIcon,
+    },
+    {
+      href: "/dashboard/customer/bookings",
+      label: "My bookings",
+      icon: CalendarIcon,
+    },
+    {
+      href: "/dashboard/customer/payments",
+      label: "Payments",
+      icon: CreditCardIcon,
+    },
     { href: "/dashboard/profile", label: "Profile", icon: UserIcon },
   ],
   technician: [
-    { href: "/dashboard/technician", label: "Overview", icon: LayoutDashboardIcon },
-    { href: "/dashboard/technician/add-service", label: "Add service", icon: PlusSquareIcon },
-    { href: "/dashboard/technician/my-services", label: "My services", icon: WrenchIcon },
-    { href: "/dashboard/technician/requests", label: "Requests", icon: InboxIcon },
+    {
+      href: "/dashboard/technician",
+      label: "Overview",
+      icon: LayoutDashboardIcon,
+    },
+    {
+      href: "/dashboard/technician/add-service",
+      label: "Add service",
+      icon: PlusSquareIcon,
+    },
+    {
+      href: "/dashboard/technician/my-services",
+      label: "My services",
+      icon: WrenchIcon,
+    },
+    {
+      href: "/dashboard/technician/requests",
+      label: "Requests",
+      icon: InboxIcon,
+    },
     { href: "/dashboard/profile", label: "Profile", icon: UserIcon },
   ],
   admin: [
     { href: "/dashboard/admin", label: "Overview", icon: LayoutDashboardIcon },
     { href: "/dashboard/admin/users", label: "Users", icon: UsersIcon },
     { href: "/dashboard/admin/services", label: "Services", icon: WrenchIcon },
-    { href: "/dashboard/admin/bookings", label: "Bookings", icon: CalendarIcon },
-    { href: "/dashboard/admin/transactions", label: "Transactions", icon: CreditCardIcon },
+    {
+      href: "/dashboard/admin/bookings",
+      label: "Bookings",
+      icon: CalendarIcon,
+    },
+    {
+      href: "/dashboard/admin/transactions",
+      label: "Transactions",
+      icon: CreditCardIcon,
+    },
     { href: "/dashboard/profile", label: "Profile", icon: UserIcon },
   ],
-};
+}
 
 function NavItems({
   role,
   pathname,
   onNavigate,
 }: {
-  role: Role;
-  pathname: string;
-  onNavigate?: () => void;
+  role: Role
+  pathname: string
+  onNavigate?: () => void
 }) {
   return (
     <nav className="space-y-1" aria-label="Dashboard">
       {NAV[role].map((link) => {
-        const active = pathname === link.href;
+        const active = pathname === link.href
         return (
           <Link
             key={link.href}
@@ -103,56 +139,60 @@ function NavItems({
             <link.icon className="size-4" />
             {link.label}
           </Link>
-        );
+        )
       })}
     </nav>
-  );
+  )
 }
 
 /** Protected dashboard shell: role sidebar, topbar, session guard. */
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-  const router = useRouter();
-  const { data: session, isPending } = authClient.useSession();
-  const [mobileOpen, setMobileOpen] = useState(false);
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const pathname = usePathname()
+  const router = useRouter()
+  const { data: session, isPending } = authClient.useSession()
+  const [mobileOpen, setMobileOpen] = useState(false)
 
-  const user = session?.user;
-  const role = (user?.role as Role) ?? "customer";
-  const home = dashboardHome(role);
+  const user = session?.user
+  const role = (user?.role as Role) ?? "customer"
+  const home = dashboardHome(role)
 
   // Sign-in guard + role-based route guard (redirect, never flash wrong content).
   useEffect(() => {
-    if (isPending) return;
+    if (isPending) return
     if (!user) {
-      router.replace(`/sign-in?redirect=${encodeURIComponent(pathname)}`);
-      return;
+      router.replace(`/sign-in?redirect=${encodeURIComponent(pathname)}`)
+      return
     }
     const allowed =
       pathname === "/dashboard" ||
       pathname === "/dashboard/profile" ||
-      pathname.startsWith(home);
-    if (!allowed) router.replace(home);
-  }, [isPending, user, pathname, home, router]);
+      pathname.startsWith(home)
+    if (!allowed) router.replace(home)
+  }, [isPending, user, pathname, home, router])
 
-  if (isPending || !user) return <DashboardSkeleton />;
+  if (isPending || !user) return <DashboardSkeleton />
 
   const allowed =
     pathname === "/dashboard" ||
     pathname === "/dashboard/profile" ||
-    pathname.startsWith(home);
-  if (!allowed) return <DashboardSkeleton />;
+    pathname.startsWith(home)
+  if (!allowed) return <DashboardSkeleton />
 
   async function handleSignOut() {
-    await authClient.signOut();
-    invalidateToken();
-    router.push("/");
-    router.refresh();
+    await authClient.signOut()
+    invalidateToken()
+    router.push("/")
+    router.refresh()
   }
 
   return (
     <div className="flex min-h-screen">
       {/* Desktop sidebar */}
-      <aside className="hidden w-60 shrink-0 flex-col border-r bg-muted/30 lg:flex">
+      <aside className="bg-muted/30 hidden w-60 shrink-0 flex-col border-r lg:flex">
         <div className="flex h-14 items-center border-b px-4">
           <Logo href={home} />
         </div>
@@ -160,7 +200,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <NavItems role={role} pathname={pathname} />
         </div>
         <div className="border-t p-3">
-          <div className="flex items-center gap-2.5 rounded-lg bg-background p-2.5 shadow-sm">
+          <div className="bg-background flex items-center gap-2.5 rounded-lg p-2.5 shadow-sm">
             <Avatar className="size-8">
               <AvatarImage src={user.image ?? undefined} alt={user.name} />
               <AvatarFallback>{initials(user.name)}</AvatarFallback>
@@ -183,12 +223,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Main column */}
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b bg-background/85 px-4 backdrop-blur sm:px-6">
+        <header className="bg-background/85 sticky top-0 z-30 flex h-14 items-center gap-3 border-b px-4 backdrop-blur sm:px-6">
           {/* Mobile nav */}
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger
               render={
-                <Button variant="ghost" size="icon-sm" aria-label="Open navigation" />
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label="Open navigation"
+                />
               }
             >
               <MenuIcon />
@@ -209,7 +253,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <div className="border-t p-3">
                 <div className="flex items-center gap-2.5">
                   <Avatar className="size-8">
-                    <AvatarImage src={user.image ?? undefined} alt={user.name} />
+                    <AvatarImage
+                      src={user.image ?? undefined}
+                      alt={user.name}
+                    />
                     <AvatarFallback>{initials(user.name)}</AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 flex-1">
@@ -241,17 +288,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <DropdownMenu>
               <DropdownMenuTrigger
                 aria-label="Account menu"
-                className="flex items-center gap-2 rounded-lg px-1.5 py-1 outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="focus-visible:ring-ring flex items-center gap-2 rounded-lg px-1.5 py-1 outline-none focus-visible:ring-2"
               >
                 <Avatar className="size-8">
                   <AvatarImage src={user.image ?? undefined} alt={user.name} />
                   <AvatarFallback>{initials(user.name)}</AvatarFallback>
                 </Avatar>
                 <span className="hidden flex-col items-start leading-tight sm:flex">
-                  <span className="max-w-40 truncate text-sm font-medium">{user.name}</span>
-                  <span className="text-xs capitalize text-muted-foreground">{role}</span>
+                  <span className="max-w-40 truncate text-sm font-medium">
+                    {user.name}
+                  </span>
+                  <span className="text-muted-foreground text-xs capitalize">
+                    {role}
+                  </span>
                 </span>
-                <ChevronDownIcon className="hidden size-3.5 text-muted-foreground sm:block" />
+                <ChevronDownIcon className="text-muted-foreground hidden size-3.5 sm:block" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel className="flex flex-col gap-1">
@@ -259,7 +310,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <span className="truncate">{user.name}</span>
                     <RoleBadge role={role} />
                   </span>
-                  <span className="truncate text-xs font-normal text-muted-foreground">
+                  <span className="text-muted-foreground truncate text-xs font-normal">
                     {user.email}
                   </span>
                 </DropdownMenuLabel>
@@ -270,11 +321,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 >
                   <UserIcon className="size-4" /> Profile
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push(home)} className="gap-2">
+                <DropdownMenuItem
+                  onClick={() => router.push(home)}
+                  className="gap-2"
+                >
                   <LayoutDashboardIcon className="size-4" /> Dashboard
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut} variant="destructive" className="gap-2">
+                <DropdownMenuItem
+                  onClick={handleSignOut}
+                  variant="destructive"
+                  className="gap-2"
+                >
                   <LogOutIcon className="size-4" /> Sign out
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -285,5 +343,5 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <main className="flex-1 px-4 py-6 sm:px-6">{children}</main>
       </div>
     </div>
-  );
+  )
 }

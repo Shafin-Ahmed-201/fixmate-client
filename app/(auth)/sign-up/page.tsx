@@ -1,26 +1,26 @@
-"use client";
+"use client"
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { CheckIcon, Loader2Icon, UserIcon, WrenchIcon } from "lucide-react";
-import { toast } from "sonner";
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+import { CheckIcon, Loader2Icon, UserIcon, WrenchIcon } from "lucide-react"
+import { toast } from "sonner"
 
-import { invalidateToken } from "@/lib/api";
-import { authClient } from "@/lib/auth-client";
-import { dashboardHome } from "@/lib/constants";
-import type { Role } from "@/lib/types";
-import { Button } from "@/components/ui/button";
+import { invalidateToken } from "@/lib/api"
+import { authClient } from "@/lib/auth-client"
+import { dashboardHome } from "@/lib/constants"
+import type { Role } from "@/lib/types"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { cn } from "cn";
+} from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { cn } from "cn"
 
 const ROLE_OPTIONS = [
   {
@@ -35,62 +35,63 @@ const ROLE_OPTIONS = [
     description: "Offer services & earn money",
     icon: WrenchIcon,
   },
-];
+]
 
 const passwordRules = [
   { label: "At least 6 characters", test: (v: string) => v.length >= 6 },
   { label: "One uppercase letter", test: (v: string) => /[A-Z]/.test(v) },
   { label: "One lowercase letter", test: (v: string) => /[a-z]/.test(v) },
-];
+]
 
 export default function SignUpPage() {
-  const router = useRouter();
-  const { data: session, isPending } = authClient.useSession();
+  const router = useRouter()
+  const { data: session, isPending } = authClient.useSession()
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
-  const [role, setRole] = useState<Role>("customer");
-  const [loading, setLoading] = useState(false);
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirm, setConfirm] = useState("")
+  const [role, setRole] = useState<Role>("customer")
+  const [loading, setLoading] = useState(false)
 
   // Already signed in → skip the form.
   useEffect(() => {
     if (!isPending && session?.user) {
-      router.replace(dashboardHome(session.user.role as Role));
+      router.replace(dashboardHome(session.user.role as Role))
     }
-  }, [isPending, session, router]);
+  }, [isPending, session, router])
 
-  const rulesPassed = passwordRules.every((rule) => rule.test(password));
+  const rulesPassed = passwordRules.every((rule) => rule.test(password))
 
   async function handleSubmit(event: React.FormEvent) {
-    event.preventDefault();
+    event.preventDefault()
 
-    if (name.trim().length < 2) return toast.error("Please enter your name");
+    if (name.trim().length < 2) return toast.error("Please enter your name")
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))
-      return toast.error("Please enter a valid email");
-    if (!rulesPassed) return toast.error("Password does not meet the requirements");
-    if (password !== confirm) return toast.error("Passwords do not match");
+      return toast.error("Please enter a valid email")
+    if (!rulesPassed)
+      return toast.error("Password does not meet the requirements")
+    if (password !== confirm) return toast.error("Passwords do not match")
 
-    setLoading(true);
+    setLoading(true)
     try {
       const result = await authClient.signUp.email({
         name: name.trim(),
         email: email.trim(),
         password,
         role,
-      });
+      })
       if (result.error) {
-        toast.error(result.error.message || "Sign up failed");
-        return;
+        toast.error(result.error.message || "Sign up failed")
+        return
       }
 
-      invalidateToken();
-      toast.success(`Welcome to FixMate, ${name.trim().split(" ")[0]}!`);
-      router.push(dashboardHome(role));
-      router.refresh();
+      invalidateToken()
+      toast.success(`Welcome to FixMate, ${name.trim().split(" ")[0]}!`)
+      router.push(dashboardHome(role))
+      router.refresh()
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
@@ -108,7 +109,7 @@ export default function SignUpPage() {
             <legend className="text-sm font-medium">I am a…</legend>
             <div className="grid grid-cols-2 gap-3 pt-1.5">
               {ROLE_OPTIONS.map((option) => {
-                const selected = role === option.value;
+                const selected = role === option.value
                 return (
                   <button
                     key={option.value}
@@ -118,21 +119,24 @@ export default function SignUpPage() {
                     className={cn(
                       "rounded-lg border p-3 text-left transition-colors",
                       selected
-                        ? "border-primary bg-primary/5 ring-2 ring-primary/30"
+                        ? "border-primary bg-primary/5 ring-primary/30 ring-2"
                         : "border-input bg-background hover:bg-muted"
                     )}
                   >
                     <span className="flex items-center gap-2 text-sm font-medium">
                       <option.icon
-                        className={cn("size-4", selected ? "text-primary" : "text-muted-foreground")}
+                        className={cn(
+                          "size-4",
+                          selected ? "text-primary" : "text-muted-foreground"
+                        )}
                       />
                       {option.title}
                     </span>
-                    <span className="mt-1 block text-xs text-muted-foreground">
+                    <span className="text-muted-foreground mt-1 block text-xs">
                       {option.description}
                     </span>
                   </button>
-                );
+                )
               })}
             </div>
           </fieldset>
@@ -175,13 +179,15 @@ export default function SignUpPage() {
             />
             <ul className="grid gap-1 pt-1">
               {passwordRules.map((rule) => {
-                const passed = rule.test(password);
+                const passed = rule.test(password)
                 return (
                   <li
                     key={rule.label}
                     className={cn(
                       "flex items-center gap-1.5 text-xs",
-                      passed ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"
+                      passed
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : "text-muted-foreground"
                     )}
                   >
                     <CheckIcon
@@ -190,7 +196,7 @@ export default function SignUpPage() {
                     />
                     {rule.label}
                   </li>
-                );
+                )
               })}
             </ul>
           </div>
@@ -214,13 +220,16 @@ export default function SignUpPage() {
           </Button>
         </form>
 
-        <p className="mt-4 text-center text-sm text-muted-foreground">
+        <p className="text-muted-foreground mt-4 text-center text-sm">
           Already have an account?{" "}
-          <Link href="/sign-in" className="font-medium text-primary hover:underline">
+          <Link
+            href="/sign-in"
+            className="text-primary font-medium hover:underline"
+          >
             Sign in
           </Link>
         </p>
       </CardContent>
     </Card>
-  );
+  )
 }

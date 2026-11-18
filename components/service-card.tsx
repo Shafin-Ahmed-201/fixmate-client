@@ -1,17 +1,23 @@
-import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { formatCurrency } from "@/lib/format";
-import type { Service } from "@/lib/types";
-import { ClockIcon, MapPinIcon, WrenchIcon } from "lucide-react";
-import { cn } from "cn";
+import Link from "next/link"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { formatCurrency } from "@/lib/format"
+import type { Service } from "@/lib/types"
+import { ClockIcon, MapPinIcon, WrenchIcon } from "lucide-react"
+import { cn } from "cn"
 
 /**
  * Service preview card — equal height in any grid (`h-full` on the card
  * and a flex column body so footers line up).
  */
-export function ServiceCard({ service, className }: { service: Service; className?: string }) {
+export function ServiceCard({
+  service,
+  className,
+}: {
+  service: Service
+  className?: string
+}) {
   return (
     <Card
       className={cn(
@@ -19,7 +25,7 @@ export function ServiceCard({ service, className }: { service: Service; classNam
         className
       )}
     >
-      <div className="relative aspect-video overflow-hidden bg-muted">
+      <div className="bg-muted relative aspect-video overflow-hidden">
         {service.image ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -28,21 +34,24 @@ export function ServiceCard({ service, className }: { service: Service; classNam
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+          <div className="text-muted-foreground flex h-full w-full items-center justify-center">
             <WrenchIcon className="size-8" />
           </div>
         )}
-        <Badge variant="secondary" className="absolute top-2 left-2 border-transparent">
+        <Badge
+          variant="secondary"
+          className="absolute top-2 left-2 border-transparent"
+        >
           {service.category}
         </Badge>
       </div>
 
       <CardContent className="flex flex-1 flex-col gap-2 p-4 pb-2">
         <h3 className="line-clamp-1 font-medium">{service.title}</h3>
-        <p className="line-clamp-2 flex-1 text-sm text-muted-foreground">
+        <p className="text-muted-foreground line-clamp-2 flex-1 text-sm">
           {service.description}
         </p>
-        <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+        <div className="text-muted-foreground flex flex-wrap gap-x-3 gap-y-1 text-xs">
           <span className="inline-flex items-center gap-1">
             <ClockIcon className="size-3.5" /> {service.estimatedDuration}
           </span>
@@ -50,15 +59,23 @@ export function ServiceCard({ service, className }: { service: Service; classNam
             <MapPinIcon className="size-3.5" /> {service.serviceMode}
           </span>
         </div>
-        <p className="text-xs text-muted-foreground">by {service.technicianName}</p>
+        <p className="text-muted-foreground text-xs">
+          by {service.technicianName}
+        </p>
       </CardContent>
 
       <CardFooter className="flex items-center justify-between gap-2 p-4 pt-0">
-        <span className="text-lg font-semibold">{formatCurrency(service.basePrice)}</span>
-        <Button render={<Link href={`/services/${service._id}`} />} size="sm" variant="outline">
+        <span className="text-lg font-semibold">
+          {formatCurrency(service.basePrice)}
+        </span>
+        <Button
+          render={<Link href={`/services/${service._id}`} />}
+          size="sm"
+          variant="outline"
+        >
           View details
         </Button>
       </CardFooter>
     </Card>
-  );
+  )
 }

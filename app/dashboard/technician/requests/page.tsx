@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react"
 import {
   CheckCircle2Icon,
   CheckIcon,
@@ -8,14 +8,14 @@ import {
   Loader2Icon,
   PlayIcon,
   XCircleIcon,
-} from "lucide-react";
-import { toast } from "sonner";
+} from "lucide-react"
+import { toast } from "sonner"
 
-import { StatusBadge } from "@/components/badges";
-import { ConfirmDialog } from "@/components/confirm-dialog";
-import { EmptyState } from "@/components/empty-state";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/badges"
+import { ConfirmDialog } from "@/components/confirm-dialog"
+import { EmptyState } from "@/components/empty-state"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -23,9 +23,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   Table,
   TableBody,
@@ -33,12 +33,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Skeleton } from "@/components/ui/skeleton";
-import { api } from "@/lib/api";
-import { formatCurrency, formatDate } from "@/lib/format";
-import type { Booking, BookingStatus } from "@/lib/types";
-import { cn } from "cn";
+} from "@/components/ui/table"
+import { Skeleton } from "@/components/ui/skeleton"
+import { api } from "@/lib/api"
+import { formatCurrency, formatDate } from "@/lib/format"
+import type { Booking, BookingStatus } from "@/lib/types"
+import { cn } from "cn"
 
 const FILTERS: ("all" | BookingStatus)[] = [
   "all",
@@ -48,29 +48,29 @@ const FILTERS: ("all" | BookingStatus)[] = [
   "completed",
   "rejected",
   "cancelled",
-];
+]
 
 /** Technician requests: filter, accept/reject, start and complete jobs. */
 export default function TechnicianRequestsPage() {
-  const [bookings, setBookings] = useState<Booking[] | null>(null);
-  const [filter, setFilter] = useState<"all" | BookingStatus>("all");
-  const [busyId, setBusyId] = useState<string | null>(null);
-  const [rejectTarget, setRejectTarget] = useState<Booking | null>(null);
-  const [rejecting, setRejecting] = useState(false);
-  const [completing, setCompleting] = useState<Booking | null>(null);
-  const [finalAmountInput, setFinalAmountInput] = useState("");
-  const [completingBusy, setCompletingBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [bookings, setBookings] = useState<Booking[] | null>(null)
+  const [filter, setFilter] = useState<"all" | BookingStatus>("all")
+  const [busyId, setBusyId] = useState<string | null>(null)
+  const [rejectTarget, setRejectTarget] = useState<Booking | null>(null)
+  const [rejecting, setRejecting] = useState(false)
+  const [completing, setCompleting] = useState<Booking | null>(null)
+  const [finalAmountInput, setFinalAmountInput] = useState("")
+  const [completingBusy, setCompletingBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const load = useCallback(() => {
     api<{ bookings: Booking[] }>("/api/bookings/technician")
       .then((res) => setBookings(res.bookings))
       .catch((err: unknown) =>
         setError(err instanceof Error ? err.message : "Failed to load requests")
-      );
-  }, []);
+      )
+  }, [])
 
-  useEffect(load, [load]);
+  useEffect(load, [load])
 
   /** Applies one state-machine transition and reloads on success. */
   async function updateStatus(
@@ -78,71 +78,79 @@ export default function TechnicianRequestsPage() {
     status: BookingStatus,
     options: { finalAmount?: number; success: string }
   ): Promise<boolean> {
-    setBusyId(bookingId);
+    setBusyId(bookingId)
     try {
-      const body: { status: BookingStatus; finalAmount?: number } = { status };
-      if (options.finalAmount !== undefined) body.finalAmount = options.finalAmount;
+      const body: { status: BookingStatus; finalAmount?: number } = { status }
+      if (options.finalAmount !== undefined)
+        body.finalAmount = options.finalAmount
       await api<{ booking: Booking }>(`/api/bookings/${bookingId}/status`, {
         method: "PATCH",
         body,
-      });
-      toast.success(options.success);
-      load();
-      return true;
+      })
+      toast.success(options.success)
+      load()
+      return true
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not update the request");
-      return false;
+      toast.error(
+        err instanceof Error ? err.message : "Could not update the request"
+      )
+      return false
     } finally {
-      setBusyId(null);
+      setBusyId(null)
     }
   }
 
   async function handleReject() {
-    if (!rejectTarget) return;
-    setRejecting(true);
+    if (!rejectTarget) return
+    setRejecting(true)
     const ok = await updateStatus(rejectTarget._id, "rejected", {
       success: "Request rejected",
-    });
-    if (ok) setRejectTarget(null);
-    setRejecting(false);
+    })
+    if (ok) setRejectTarget(null)
+    setRejecting(false)
   }
 
   async function handleComplete(event: React.FormEvent) {
-    event.preventDefault();
-    if (!completing) return;
+    event.preventDefault()
+    if (!completing) return
 
-    const amount = Number(finalAmountInput);
+    const amount = Number(finalAmountInput)
     if (!(amount > 0)) {
-      toast.error("Enter a valid final amount");
-      return;
+      toast.error("Enter a valid final amount")
+      return
     }
 
-    setCompletingBusy(true);
+    setCompletingBusy(true)
     try {
       const body: { status: BookingStatus; finalAmount: number } = {
         status: "completed",
         finalAmount: Math.round(amount * 100) / 100,
-      };
-      await api<{ booking: Booking }>(`/api/bookings/${completing._id}/status`, {
-        method: "PATCH",
-        body,
-      });
-      toast.success("Job completed — customer can now pay");
-      setCompleting(null);
-      load();
+      }
+      await api<{ booking: Booking }>(
+        `/api/bookings/${completing._id}/status`,
+        {
+          method: "PATCH",
+          body,
+        }
+      )
+      toast.success("Job completed — customer can now pay")
+      setCompleting(null)
+      load()
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not complete the job");
+      toast.error(
+        err instanceof Error ? err.message : "Could not complete the job"
+      )
     } finally {
-      setCompletingBusy(false);
+      setCompletingBusy(false)
     }
   }
 
   if (error) {
     return (
-      <p className="py-16 text-center text-sm text-destructive" role="alert">
+      <p className="text-destructive py-16 text-center text-sm" role="alert">
         {error}
       </p>
-    );
+    )
   }
 
   if (bookings === null) {
@@ -152,30 +160,36 @@ export default function TechnicianRequestsPage() {
         <Skeleton className="h-10 w-full rounded-lg" />
         <Skeleton className="h-64 rounded-lg" />
       </div>
-    );
+    )
   }
 
   const visible =
-    filter === "all" ? bookings : bookings.filter((booking) => booking.status === filter);
+    filter === "all"
+      ? bookings
+      : bookings.filter((booking) => booking.status === filter)
 
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Requests</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="text-muted-foreground mt-1 text-sm">
             Accept, work and complete the booking requests from your customers.
           </p>
         </div>
       </div>
 
       {/* Status filter chips */}
-      <div className="flex flex-wrap gap-2" role="group" aria-label="Filter requests">
+      <div
+        className="flex flex-wrap gap-2"
+        role="group"
+        aria-label="Filter requests"
+      >
         {FILTERS.map((value) => {
           const count =
             value === "all"
               ? bookings.length
-              : bookings.filter((booking) => booking.status === value).length;
+              : bookings.filter((booking) => booking.status === value).length
           return (
             <button
               key={value}
@@ -191,7 +205,7 @@ export default function TechnicianRequestsPage() {
             >
               {value.replace("-", " ")} ({count})
             </button>
-          );
+          )
         })}
       </div>
 
@@ -199,7 +213,9 @@ export default function TechnicianRequestsPage() {
         <EmptyState
           icon={InboxIcon}
           title={
-            filter === "all" ? "No requests yet" : `No ${filter.replace("-", " ")} requests`
+            filter === "all"
+              ? "No requests yet"
+              : `No ${filter.replace("-", " ")} requests`
           }
           description={
             filter === "all"
@@ -224,14 +240,18 @@ export default function TechnicianRequestsPage() {
               {visible.map((booking) => (
                 <TableRow key={booking._id}>
                   <TableCell className="max-w-40">
-                    <p className="truncate font-medium">{booking.customerName}</p>
-                    <p className="truncate text-xs text-muted-foreground">
+                    <p className="truncate font-medium">
+                      {booking.customerName}
+                    </p>
+                    <p className="text-muted-foreground truncate text-xs">
                       {booking.customerPhone}
                     </p>
                   </TableCell>
                   <TableCell className="max-w-52">
-                    <p className="truncate font-medium">{booking.serviceTitle}</p>
-                    <p className="truncate text-xs text-muted-foreground">
+                    <p className="truncate font-medium">
+                      {booking.serviceTitle}
+                    </p>
+                    <p className="text-muted-foreground truncate text-xs">
                       {booking.category}
                     </p>
                   </TableCell>
@@ -286,10 +306,10 @@ export default function TechnicianRequestsPage() {
                         <Button
                           size="xs"
                           onClick={() => {
-                            setCompleting(booking);
+                            setCompleting(booking)
                             setFinalAmountInput(
                               String(booking.finalAmount ?? booking.basePrice)
-                            );
+                            )
                           }}
                         >
                           <CheckCircle2Icon /> Complete
@@ -308,7 +328,7 @@ export default function TechnicianRequestsPage() {
                         booking.status === "cancelled" ||
                         (booking.status === "completed" &&
                           booking.paymentStatus !== "paid")) && (
-                        <span className="text-sm text-muted-foreground">—</span>
+                        <span className="text-muted-foreground text-sm">—</span>
                       )}
                     </div>
                   </TableCell>
@@ -323,7 +343,7 @@ export default function TechnicianRequestsPage() {
       <ConfirmDialog
         open={rejectTarget !== null}
         onOpenChange={(open) => {
-          if (!open) setRejectTarget(null);
+          if (!open) setRejectTarget(null)
         }}
         title="Reject this request?"
         description="The customer will be notified — this cannot be undone."
@@ -337,7 +357,7 @@ export default function TechnicianRequestsPage() {
       <Dialog
         open={completing !== null}
         onOpenChange={(open) => {
-          if (!open) setCompleting(null);
+          if (!open) setCompleting(null)
         }}
       >
         <DialogContent className="sm:max-w-lg">
@@ -349,9 +369,9 @@ export default function TechnicianRequestsPage() {
           </DialogHeader>
           {completing && (
             <form onSubmit={handleComplete} className="space-y-4">
-              <div className="rounded-lg bg-muted/50 p-3">
+              <div className="bg-muted/50 rounded-lg p-3">
                 <p className="font-medium">{completing.serviceTitle}</p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Base price: {formatCurrency(completing.basePrice)}
                 </p>
               </div>
@@ -390,5 +410,5 @@ export default function TechnicianRequestsPage() {
         </DialogContent>
       </Dialog>
     </div>
-  );
+  )
 }

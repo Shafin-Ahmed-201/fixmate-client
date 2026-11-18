@@ -1,4 +1,4 @@
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/ui/skeleton"
 
 /** Content skeleton while a dashboard route loads (shell stays mounted). */
 export default function DashboardLoading() {
@@ -12,5 +12,5 @@ export default function DashboardLoading() {
       </div>
       <Skeleton className="h-72 rounded-lg" />
     </div>
-  );
+  )
 }

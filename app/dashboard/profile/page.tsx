@@ -1,42 +1,42 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { Loader2Icon, SaveIcon } from "lucide-react";
-import { toast } from "sonner";
+import { useState } from "react"
+import { Loader2Icon, SaveIcon } from "lucide-react"
+import { toast } from "sonner"
 
-import { ImageUpload } from "@/components/image-upload";
-import { RoleBadge } from "@/components/badges";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { ImageUpload } from "@/components/image-upload"
+import { RoleBadge } from "@/components/badges"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { api, ApiError } from "@/lib/api";
-import { authClient } from "@/lib/auth-client";
-import { initials } from "@/lib/format";
-import type { Role, User } from "@/lib/types";
+} from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { api, ApiError } from "@/lib/api"
+import { authClient } from "@/lib/auth-client"
+import { initials } from "@/lib/format"
+import type { Role, User } from "@/lib/types"
 
 /** Editable profile: name, phone, area, bio and avatar. */
 export default function ProfilePage() {
-  const { data: session, isPending, refetch } = authClient.useSession();
+  const { data: session, isPending, refetch } = authClient.useSession()
 
   if (isPending || !session?.user) {
     return (
       <div className="space-y-4">
-        <div className="h-8 w-48 animate-pulse rounded-md bg-muted" />
-        <div className="h-80 animate-pulse rounded-lg bg-muted" />
+        <div className="bg-muted h-8 w-48 animate-pulse rounded-md" />
+        <div className="bg-muted h-80 animate-pulse rounded-lg" />
       </div>
-    );
+    )
   }
 
-  return <ProfileForm user={session.user} refetch={refetch} />;
+  return <ProfileForm user={session.user} refetch={refetch} />
 }
 
 function ProfileForm({
@@ -44,30 +44,30 @@ function ProfileForm({
   refetch,
 }: {
   user: {
-    name: string;
-    email: string;
-    image?: string | null;
-    role: string;
-    phone?: string | null;
-    area?: string | null;
-    bio?: string | null;
-  };
-  refetch: () => Promise<unknown>;
+    name: string
+    email: string
+    image?: string | null
+    role: string
+    phone?: string | null
+    area?: string | null
+    bio?: string | null
+  }
+  refetch: () => Promise<unknown>
 }) {
-  const [name, setName] = useState(user.name ?? "");
-  const [phone, setPhone] = useState(user.phone ?? "");
-  const [area, setArea] = useState(user.area ?? "");
-  const [bio, setBio] = useState(user.bio ?? "");
-  const [image, setImage] = useState(user.image ?? "");
-  const [saving, setSaving] = useState(false);
+  const [name, setName] = useState(user.name ?? "")
+  const [phone, setPhone] = useState(user.phone ?? "")
+  const [area, setArea] = useState(user.area ?? "")
+  const [bio, setBio] = useState(user.bio ?? "")
+  const [image, setImage] = useState(user.image ?? "")
+  const [saving, setSaving] = useState(false)
 
-  const role = user.role as Role;
+  const role = user.role as Role
 
   async function handleSave(event: React.FormEvent) {
-    event.preventDefault();
-    if (!name.trim()) return toast.error("Name cannot be empty");
+    event.preventDefault()
+    if (!name.trim()) return toast.error("Name cannot be empty")
 
-    setSaving(true);
+    setSaving(true)
     try {
       await api<{ success: boolean; user: User }>("/api/users/profile", {
         method: "PATCH",
@@ -78,17 +78,17 @@ function ProfileForm({
           bio: bio.trim(),
           image: image.trim(),
         },
-      });
-      await refetch();
-      toast.success("Profile updated");
+      })
+      await refetch()
+      toast.success("Profile updated")
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
-        toast.error("Your session expired — please sign in again");
+        toast.error("Your session expired — please sign in again")
       } else {
-        toast.error(err instanceof Error ? err.message : "Update failed");
+        toast.error(err instanceof Error ? err.message : "Update failed")
       }
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
   }
 
@@ -96,7 +96,7 @@ function ProfileForm({
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Profile</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="text-muted-foreground mt-1 text-sm">
           How you appear to technicians, customers and admins.
         </p>
       </div>
@@ -106,17 +106,21 @@ function ProfileForm({
         <CardContent className="flex items-center gap-4 px-5">
           <Avatar className="size-16">
             <AvatarImage src={image || undefined} alt={name} />
-            <AvatarFallback className="text-lg">{initials(name)}</AvatarFallback>
+            <AvatarFallback className="text-lg">
+              {initials(name)}
+            </AvatarFallback>
           </Avatar>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <p className="truncate font-medium">{name}</p>
               <RoleBadge role={role} />
             </div>
-            <p className="truncate text-sm text-muted-foreground">{user.email}</p>
-            <p className="text-xs text-muted-foreground">
-              Role: <span className="capitalize">{role}</span> · email changes are not
-              possible here
+            <p className="text-muted-foreground truncate text-sm">
+              {user.email}
+            </p>
+            <p className="text-muted-foreground text-xs">
+              Role: <span className="capitalize">{role}</span> · email changes
+              are not possible here
             </p>
           </div>
         </CardContent>
@@ -198,5 +202,5 @@ function ProfileForm({
         </div>
       </form>
     </div>
-  );
+  )
 }

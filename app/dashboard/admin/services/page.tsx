@@ -1,15 +1,15 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import { CheckIcon, WrenchIcon, XIcon } from "lucide-react";
-import { toast } from "sonner";
+import { useEffect, useState } from "react"
+import { CheckIcon, WrenchIcon, XIcon } from "lucide-react"
+import { toast } from "sonner"
 
-import { ApprovalBadge } from "@/components/badges";
-import { ConfirmDialog } from "@/components/confirm-dialog";
-import { EmptyState } from "@/components/empty-state";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { ApprovalBadge } from "@/components/badges"
+import { ConfirmDialog } from "@/components/confirm-dialog"
+import { EmptyState } from "@/components/empty-state"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Table,
   TableBody,
@@ -17,69 +17,85 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { api } from "@/lib/api";
-import { formatCurrency, formatDate } from "@/lib/format";
-import type { ApprovalStatus, Service } from "@/lib/types";
-import { cn } from "cn";
+} from "@/components/ui/table"
+import { api } from "@/lib/api"
+import { formatCurrency, formatDate } from "@/lib/format"
+import type { ApprovalStatus, Service } from "@/lib/types"
+import { cn } from "cn"
 
-const FILTERS: ("all" | ApprovalStatus)[] = ["all", "pending", "approved", "rejected"];
+const FILTERS: ("all" | ApprovalStatus)[] = [
+  "all",
+  "pending",
+  "approved",
+  "rejected",
+]
 
-type Decision = "approved" | "rejected";
+type Decision = "approved" | "rejected"
 
 /** Admin service approval queue: approve or reject technician submissions. */
 export default function AdminServicesPage() {
-  const [services, setServices] = useState<Service[] | null>(null);
-  const [filter, setFilter] = useState<"all" | ApprovalStatus>("all");
-  const [target, setTarget] = useState<{ service: Service; decision: Decision } | null>(
-    null
-  );
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [services, setServices] = useState<Service[] | null>(null)
+  const [filter, setFilter] = useState<"all" | ApprovalStatus>("all")
+  const [target, setTarget] = useState<{
+    service: Service
+    decision: Decision
+  } | null>(null)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    let cancelled = false;
+    let cancelled = false
     api<{ services: Service[] }>("/api/admin/services")
       .then((res) => {
-        if (!cancelled) setServices(res.services);
+        if (!cancelled) setServices(res.services)
       })
       .catch((err: unknown) => {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Failed to load services");
+          setError(
+            err instanceof Error ? err.message : "Failed to load services"
+          )
         }
-      });
+      })
     return () => {
-      cancelled = true;
-    };
-  }, []);
+      cancelled = true
+    }
+  }, [])
 
   async function handleDecision() {
-    if (!target) return;
-    const { service, decision } = target;
-    setBusy(true);
+    if (!target) return
+    const { service, decision } = target
+    setBusy(true)
     try {
       const res = await api<{ service: Service }>(
         `/api/admin/services/${service._id}/approval`,
         { method: "PATCH", body: { approvalStatus: decision } }
-      );
+      )
       setServices((prev) =>
-        prev === null ? prev : prev.map((item) => (item._id === res.service._id ? res.service : item))
-      );
-      toast.success(decision === "approved" ? "Service approved" : "Service rejected");
-      setTarget(null);
+        prev === null
+          ? prev
+          : prev.map((item) =>
+              item._id === res.service._id ? res.service : item
+            )
+      )
+      toast.success(
+        decision === "approved" ? "Service approved" : "Service rejected"
+      )
+      setTarget(null)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not update the service");
+      toast.error(
+        err instanceof Error ? err.message : "Could not update the service"
+      )
     } finally {
-      setBusy(false);
+      setBusy(false)
     }
   }
 
   if (error) {
     return (
-      <p className="py-16 text-center text-sm text-destructive" role="alert">
+      <p className="text-destructive py-16 text-center text-sm" role="alert">
         {error}
       </p>
-    );
+    )
   }
 
   if (services === null) {
@@ -89,31 +105,43 @@ export default function AdminServicesPage() {
         <Skeleton className="h-10 w-full rounded-lg" />
         <Skeleton className="h-64 rounded-lg" />
       </div>
-    );
+    )
   }
 
   const visible =
-    filter === "all" ? services : services.filter((item) => item.approvalStatus === filter);
+    filter === "all"
+      ? services
+      : services.filter((item) => item.approvalStatus === filter)
 
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Service approvals</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {services.filter((item) => item.approvalStatus === "pending").length} pending
-            review · {services.length} service{services.length === 1 ? "" : "s"} total
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Service approvals
+          </h1>
+          <p className="text-muted-foreground mt-1 text-sm">
+            {
+              services.filter((item) => item.approvalStatus === "pending")
+                .length
+            }{" "}
+            pending review · {services.length} service
+            {services.length === 1 ? "" : "s"} total
           </p>
         </div>
       </div>
 
       {/* Approval filter chips */}
-      <div className="flex flex-wrap gap-2" role="group" aria-label="Filter services">
+      <div
+        className="flex flex-wrap gap-2"
+        role="group"
+        aria-label="Filter services"
+      >
         {FILTERS.map((value) => {
           const count =
             value === "all"
               ? services.length
-              : services.filter((item) => item.approvalStatus === value).length;
+              : services.filter((item) => item.approvalStatus === value).length
           return (
             <button
               key={value}
@@ -129,7 +157,7 @@ export default function AdminServicesPage() {
             >
               {value} ({count})
             </button>
-          );
+          )
         })}
       </div>
 
@@ -169,13 +197,13 @@ export default function AdminServicesPage() {
                           className="size-10 shrink-0 rounded-lg object-cover"
                         />
                       ) : (
-                        <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                        <span className="bg-muted text-muted-foreground flex size-10 shrink-0 items-center justify-center rounded-lg">
                           <WrenchIcon className="size-5" />
                         </span>
                       )}
                       <div className="min-w-0">
                         <p className="truncate font-medium">{service.title}</p>
-                        <p className="truncate text-xs text-muted-foreground">
+                        <p className="text-muted-foreground truncate text-xs">
                           {service.technicianName}
                         </p>
                       </div>
@@ -200,7 +228,9 @@ export default function AdminServicesPage() {
                       {service.approvalStatus !== "approved" && (
                         <Button
                           size="xs"
-                          onClick={() => setTarget({ service, decision: "approved" })}
+                          onClick={() =>
+                            setTarget({ service, decision: "approved" })
+                          }
                         >
                           <CheckIcon /> Approve
                         </Button>
@@ -210,7 +240,9 @@ export default function AdminServicesPage() {
                           size="xs"
                           variant="outline"
                           className="text-destructive"
-                          onClick={() => setTarget({ service, decision: "rejected" })}
+                          onClick={() =>
+                            setTarget({ service, decision: "rejected" })
+                          }
                         >
                           <XIcon /> Reject
                         </Button>
@@ -227,9 +259,13 @@ export default function AdminServicesPage() {
       <ConfirmDialog
         open={target !== null}
         onOpenChange={(open) => {
-          if (!open) setTarget(null);
+          if (!open) setTarget(null)
         }}
-        title={target?.decision === "rejected" ? "Reject this service?" : "Approve this service?"}
+        title={
+          target?.decision === "rejected"
+            ? "Reject this service?"
+            : "Approve this service?"
+        }
         description={
           target
             ? target.decision === "approved"
@@ -244,5 +280,5 @@ export default function AdminServicesPage() {
         disabled={busy}
       />
     </div>
-  );
+  )
 }

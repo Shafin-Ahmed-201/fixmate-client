@@ -1,25 +1,25 @@
-"use client";
+"use client"
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import Link from "next/link"
+import { useEffect, useState } from "react"
 import {
   CalendarIcon,
   CheckCircle2Icon,
   CreditCardIcon,
   HourglassIcon,
-} from "lucide-react";
+} from "lucide-react"
 
-import { EmptyState } from "@/components/empty-state";
-import { StatusBadge } from "@/components/badges";
-import { StatCard } from "@/components/stat-card";
-import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/empty-state"
+import { StatusBadge } from "@/components/badges"
+import { StatCard } from "@/components/stat-card"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/components/ui/card"
 import {
   Table,
   TableBody,
@@ -27,8 +27,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Skeleton } from "@/components/ui/skeleton";
+} from "@/components/ui/table"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   ChartContainer,
   ChartLegend,
@@ -36,11 +36,11 @@ import {
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
-} from "@/components/ui/chart";
-import { api } from "@/lib/api";
-import { formatCurrency, formatDate } from "@/lib/format";
-import type { Booking, BookingStatus, Payment } from "@/lib/types";
-import { Cell, Pie, PieChart } from "recharts";
+} from "@/components/ui/chart"
+import { api } from "@/lib/api"
+import { formatCurrency, formatDate } from "@/lib/format"
+import type { Booking, BookingStatus, Payment } from "@/lib/types"
+import { Cell, Pie, PieChart } from "recharts"
 
 const STATUS_COLORS: Record<BookingStatus, string> = {
   requested: "#3b82f6",
@@ -49,7 +49,7 @@ const STATUS_COLORS: Record<BookingStatus, string> = {
   completed: "#10b981",
   rejected: "#ef4444",
   cancelled: "#9ca3af",
-};
+}
 
 const chartConfig = {
   requested: { label: "Requested", color: "#3b82f6" },
@@ -58,44 +58,50 @@ const chartConfig = {
   completed: { label: "Completed", color: "#10b981" },
   rejected: { label: "Rejected", color: "#ef4444" },
   cancelled: { label: "Cancelled", color: "#9ca3af" },
-} satisfies ChartConfig;
+} satisfies ChartConfig
 
-const ACTIVE_STATUSES: BookingStatus[] = ["requested", "accepted", "in-progress"];
+const ACTIVE_STATUSES: BookingStatus[] = [
+  "requested",
+  "accepted",
+  "in-progress",
+]
 
 /** Customer home: KPI cards, bookings-by-status chart and recent bookings. */
 export default function CustomerDashboardPage() {
-  const [bookings, setBookings] = useState<Booking[] | null>(null);
-  const [payments, setPayments] = useState<Payment[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [bookings, setBookings] = useState<Booking[] | null>(null)
+  const [payments, setPayments] = useState<Payment[] | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    let cancelled = false;
+    let cancelled = false
     Promise.all([
       api<{ bookings: Booking[] }>("/api/bookings/my"),
       api<{ payments: Payment[] }>("/api/payments/my"),
     ])
       .then(([bookingRes, paymentRes]) => {
         if (!cancelled) {
-          setBookings(bookingRes.bookings);
-          setPayments(paymentRes.payments);
+          setBookings(bookingRes.bookings)
+          setPayments(paymentRes.payments)
         }
       })
       .catch((err: unknown) => {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Failed to load your dashboard");
+          setError(
+            err instanceof Error ? err.message : "Failed to load your dashboard"
+          )
         }
-      });
+      })
     return () => {
-      cancelled = true;
-    };
-  }, []);
+      cancelled = true
+    }
+  }, [])
 
   if (error) {
     return (
-      <p className="py-16 text-center text-sm text-destructive" role="alert">
+      <p className="text-destructive py-16 text-center text-sm" role="alert">
         {error}
       </p>
-    );
+    )
   }
 
   if (bookings === null || payments === null) {
@@ -112,29 +118,36 @@ export default function CustomerDashboardPage() {
           <Skeleton className="h-72 rounded-lg" />
         </div>
       </div>
-    );
+    )
   }
 
-  const active = bookings.filter((booking) => ACTIVE_STATUSES.includes(booking.status));
-  const completed = bookings.filter((booking) => booking.status === "completed");
-  const unpaid = completed.filter((booking) => booking.paymentStatus === "unpaid");
-  const spent = payments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
+  const active = bookings.filter((booking) =>
+    ACTIVE_STATUSES.includes(booking.status)
+  )
+  const completed = bookings.filter((booking) => booking.status === "completed")
+  const unpaid = completed.filter(
+    (booking) => booking.paymentStatus === "unpaid"
+  )
+  const spent = payments.reduce(
+    (sum, payment) => sum + Number(payment.amount || 0),
+    0
+  )
 
   const statusCounts = (Object.keys(STATUS_COLORS) as BookingStatus[])
     .map((status) => ({
       status,
       count: bookings.filter((booking) => booking.status === status).length,
     }))
-    .filter((entry) => entry.count > 0);
+    .filter((entry) => entry.count > 0)
 
-  const recent = bookings.slice(0, 5);
+  const recent = bookings.slice(0, 5)
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Overview</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="text-muted-foreground mt-1 text-sm">
             Your repair activity at a glance.
           </p>
         </div>
@@ -154,7 +167,8 @@ export default function CustomerDashboardPage() {
           icon={HourglassIcon}
           label="In progress"
           value={
-            bookings.filter((booking) => booking.status === "in-progress").length +
+            bookings.filter((booking) => booking.status === "in-progress")
+              .length +
             bookings.filter((booking) => booking.status === "accepted").length
           }
           hint="Accepted or being worked on"
@@ -184,7 +198,11 @@ export default function CustomerDashboardPage() {
               <CardTitle className="text-base">Recent bookings</CardTitle>
               <CardDescription>Your five latest requests</CardDescription>
             </div>
-            <Button render={<Link href="/dashboard/customer/bookings" />} variant="outline" size="xs">
+            <Button
+              render={<Link href="/dashboard/customer/bookings" />}
+              variant="outline"
+              size="xs"
+            >
               View all
             </Button>
           </CardHeader>
@@ -210,19 +228,23 @@ export default function CustomerDashboardPage() {
                     {recent.map((booking) => (
                       <TableRow key={booking._id}>
                         <TableCell className="max-w-48">
-                          <p className="truncate font-medium">{booking.serviceTitle}</p>
-                          <p className="truncate text-xs text-muted-foreground">
+                          <p className="truncate font-medium">
+                            {booking.serviceTitle}
+                          </p>
+                          <p className="text-muted-foreground truncate text-xs">
                             {booking.technicianName}
                           </p>
                         </TableCell>
-                        <TableCell className="whitespace-nowrap text-sm">
+                        <TableCell className="text-sm whitespace-nowrap">
                           {formatDate(booking.preferredDate)}
                         </TableCell>
                         <TableCell>
                           <StatusBadge status={booking.status} />
                         </TableCell>
                         <TableCell className="text-right text-sm whitespace-nowrap">
-                          {formatCurrency(booking.finalAmount ?? booking.basePrice)}
+                          {formatCurrency(
+                            booking.finalAmount ?? booking.basePrice
+                          )}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -241,11 +263,14 @@ export default function CustomerDashboardPage() {
           </CardHeader>
           <CardContent className="px-5">
             {statusCounts.length === 0 ? (
-              <p className="py-10 text-center text-sm text-muted-foreground">
+              <p className="text-muted-foreground py-10 text-center text-sm">
                 Nothing to chart yet.
               </p>
             ) : (
-              <ChartContainer config={chartConfig} className="mx-auto aspect-square max-h-72">
+              <ChartContainer
+                config={chartConfig}
+                className="mx-auto aspect-square max-h-72"
+              >
                 <PieChart>
                   <Pie
                     data={statusCounts}
@@ -257,7 +282,10 @@ export default function CustomerDashboardPage() {
                     stroke="none"
                   >
                     {statusCounts.map((entry) => (
-                      <Cell key={entry.status} fill={STATUS_COLORS[entry.status]} />
+                      <Cell
+                        key={entry.status}
+                        fill={STATUS_COLORS[entry.status]}
+                      />
                     ))}
                   </Pie>
                   <ChartTooltip content={<ChartTooltipContent />} />
@@ -269,5 +297,5 @@ export default function CustomerDashboardPage() {
         </Card>
       </div>
     </div>
-  );
+  )
 }

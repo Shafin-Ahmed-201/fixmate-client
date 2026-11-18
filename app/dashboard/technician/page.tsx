@@ -1,26 +1,26 @@
-"use client";
+"use client"
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import Link from "next/link"
+import { useEffect, useState } from "react"
 import {
   CheckCircle2Icon,
   HourglassIcon,
   InboxIcon,
   PlusSquareIcon,
   WrenchIcon,
-} from "lucide-react";
+} from "lucide-react"
 
-import { StatusBadge } from "@/components/badges";
-import { EmptyState } from "@/components/empty-state";
-import { StatCard } from "@/components/stat-card";
-import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/badges"
+import { EmptyState } from "@/components/empty-state"
+import { StatCard } from "@/components/stat-card"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/components/ui/card"
 import {
   ChartContainer,
   ChartLegend,
@@ -28,8 +28,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
-} from "@/components/ui/chart";
-import { Skeleton } from "@/components/ui/skeleton";
+} from "@/components/ui/chart"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Table,
   TableBody,
@@ -37,11 +37,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { api } from "@/lib/api";
-import { formatDate } from "@/lib/format";
-import type { Booking, BookingStatus, Service } from "@/lib/types";
-import { Cell, Pie, PieChart } from "recharts";
+} from "@/components/ui/table"
+import { api } from "@/lib/api"
+import { formatDate } from "@/lib/format"
+import type { Booking, BookingStatus, Service } from "@/lib/types"
+import { Cell, Pie, PieChart } from "recharts"
 
 const STATUS_COLORS: Record<BookingStatus, string> = {
   requested: "#3b82f6",
@@ -50,7 +50,7 @@ const STATUS_COLORS: Record<BookingStatus, string> = {
   completed: "#10b981",
   rejected: "#ef4444",
   cancelled: "#9ca3af",
-};
+}
 
 const chartConfig = {
   requested: { label: "Requested", color: "#3b82f6" },
@@ -59,42 +59,44 @@ const chartConfig = {
   completed: { label: "Completed", color: "#10b981" },
   rejected: { label: "Rejected", color: "#ef4444" },
   cancelled: { label: "Cancelled", color: "#9ca3af" },
-} satisfies ChartConfig;
+} satisfies ChartConfig
 
 /** Technician home: KPI cards, requests-by-status chart and recent requests. */
 export default function TechnicianDashboardPage() {
-  const [services, setServices] = useState<Service[] | null>(null);
-  const [bookings, setBookings] = useState<Booking[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [services, setServices] = useState<Service[] | null>(null)
+  const [bookings, setBookings] = useState<Booking[] | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    let cancelled = false;
+    let cancelled = false
     Promise.all([
       api<{ services: Service[] }>("/api/services/my"),
       api<{ bookings: Booking[] }>("/api/bookings/technician"),
     ])
       .then(([serviceRes, bookingRes]) => {
         if (!cancelled) {
-          setServices(serviceRes.services);
-          setBookings(bookingRes.bookings);
+          setServices(serviceRes.services)
+          setBookings(bookingRes.bookings)
         }
       })
       .catch((err: unknown) => {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Failed to load your dashboard");
+          setError(
+            err instanceof Error ? err.message : "Failed to load your dashboard"
+          )
         }
-      });
+      })
     return () => {
-      cancelled = true;
-    };
-  }, []);
+      cancelled = true
+    }
+  }, [])
 
   if (error) {
     return (
-      <p className="py-16 text-center text-sm text-destructive" role="alert">
+      <p className="text-destructive py-16 text-center text-sm" role="alert">
         {error}
       </p>
-    );
+    )
   }
 
   if (services === null || bookings === null) {
@@ -111,39 +113,45 @@ export default function TechnicianDashboardPage() {
           <Skeleton className="h-72 rounded-lg" />
         </div>
       </div>
-    );
+    )
   }
 
   const pending = services.filter(
     (service) => service.approvalStatus === "pending"
-  ).length;
-  const requested = bookings.filter((booking) => booking.status === "requested").length;
+  ).length
+  const requested = bookings.filter(
+    (booking) => booking.status === "requested"
+  ).length
   const inProgress = bookings.filter(
-    (booking) => booking.status === "accepted" || booking.status === "in-progress"
-  ).length;
+    (booking) =>
+      booking.status === "accepted" || booking.status === "in-progress"
+  ).length
   const completed = bookings.filter(
     (booking) => booking.status === "completed"
-  ).length;
+  ).length
 
   const statusCounts = (Object.keys(STATUS_COLORS) as BookingStatus[])
     .map((status) => ({
       status,
       count: bookings.filter((booking) => booking.status === status).length,
     }))
-    .filter((entry) => entry.count > 0);
+    .filter((entry) => entry.count > 0)
 
-  const recent = bookings.slice(0, 5);
+  const recent = bookings.slice(0, 5)
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Overview</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="text-muted-foreground mt-1 text-sm">
             Your services and booking requests at a glance.
           </p>
         </div>
-        <Button render={<Link href="/dashboard/technician/add-service" />} size="sm">
+        <Button
+          render={<Link href="/dashboard/technician/add-service" />}
+          size="sm"
+        >
           <PlusSquareIcon /> Add service
         </Button>
       </div>
@@ -222,7 +230,7 @@ export default function TechnicianDashboardPage() {
                         </TableCell>
                         <TableCell className="max-w-48">
                           <p className="truncate">{booking.serviceTitle}</p>
-                          <p className="truncate text-xs text-muted-foreground">
+                          <p className="text-muted-foreground truncate text-xs">
                             {booking.category}
                           </p>
                         </TableCell>
@@ -249,11 +257,14 @@ export default function TechnicianDashboardPage() {
           </CardHeader>
           <CardContent className="px-5">
             {statusCounts.length === 0 ? (
-              <p className="py-10 text-center text-sm text-muted-foreground">
+              <p className="text-muted-foreground py-10 text-center text-sm">
                 Nothing to chart yet.
               </p>
             ) : (
-              <ChartContainer config={chartConfig} className="mx-auto aspect-square max-h-72">
+              <ChartContainer
+                config={chartConfig}
+                className="mx-auto aspect-square max-h-72"
+              >
                 <PieChart>
                   <Pie
                     data={statusCounts}
@@ -265,7 +276,10 @@ export default function TechnicianDashboardPage() {
                     stroke="none"
                   >
                     {statusCounts.map((entry) => (
-                      <Cell key={entry.status} fill={STATUS_COLORS[entry.status]} />
+                      <Cell
+                        key={entry.status}
+                        fill={STATUS_COLORS[entry.status]}
+                      />
                     ))}
                   </Pie>
                   <ChartTooltip content={<ChartTooltipContent />} />
@@ -277,5 +291,5 @@ export default function TechnicianDashboardPage() {
         </Card>
       </div>
     </div>
-  );
+  )
 }

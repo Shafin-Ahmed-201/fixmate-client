@@ -1,12 +1,12 @@
-"use client";
+"use client"
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { CreditCardIcon, ReceiptTextIcon } from "lucide-react";
+import Link from "next/link"
+import { useEffect, useState } from "react"
+import { CreditCardIcon, ReceiptTextIcon } from "lucide-react"
 
-import { EmptyState } from "@/components/empty-state";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/empty-state"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
   Table,
   TableBody,
@@ -14,37 +14,40 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Skeleton } from "@/components/ui/skeleton";
-import { api } from "@/lib/api";
-import { formatCurrency, formatDateTime } from "@/lib/format";
-import type { Payment } from "@/lib/types";
+} from "@/components/ui/table"
+import { Skeleton } from "@/components/ui/skeleton"
+import { api } from "@/lib/api"
+import { formatCurrency, formatDateTime } from "@/lib/format"
+import type { Payment } from "@/lib/types"
 
 /** Payment history for the signed-in customer (Stripe receipts). */
 export default function CustomerPaymentsPage() {
-  const [payments, setPayments] = useState<Payment[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [payments, setPayments] = useState<Payment[] | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    let cancelled = false;
+    let cancelled = false
     api<{ payments: Payment[] }>("/api/payments/my")
       .then((res) => {
-        if (!cancelled) setPayments(res.payments);
+        if (!cancelled) setPayments(res.payments)
       })
       .catch((err: unknown) => {
-        if (!cancelled) setError(err instanceof Error ? err.message : "Failed to load payments");
-      });
+        if (!cancelled)
+          setError(
+            err instanceof Error ? err.message : "Failed to load payments"
+          )
+      })
     return () => {
-      cancelled = true;
-    };
-  }, []);
+      cancelled = true
+    }
+  }, [])
 
   if (error) {
     return (
-      <p className="py-16 text-center text-sm text-destructive" role="alert">
+      <p className="text-destructive py-16 text-center text-sm" role="alert">
         {error}
       </p>
-    );
+    )
   }
 
   if (payments === null) {
@@ -53,27 +56,35 @@ export default function CustomerPaymentsPage() {
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-64 rounded-lg" />
       </div>
-    );
+    )
   }
 
-  const totalSpent = payments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
+  const totalSpent = payments.reduce(
+    (sum, payment) => sum + Number(payment.amount || 0),
+    0
+  )
 
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Payments</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="text-muted-foreground mt-1 text-sm">
             {payments.length > 0 && (
               <>
-                {formatCurrency(totalSpent)} paid across {payments.length} transaction
+                {formatCurrency(totalSpent)} paid across {payments.length}{" "}
+                transaction
                 {payments.length === 1 ? "" : "s"}
               </>
             )}
             {payments.length === 0 && "Your Stripe payment history."}
           </p>
         </div>
-        <Button render={<Link href="/dashboard/customer/bookings" />} size="sm" variant="outline">
+        <Button
+          render={<Link href="/dashboard/customer/bookings" />}
+          size="sm"
+          variant="outline"
+        >
           My bookings
         </Button>
       </div>
@@ -105,8 +116,10 @@ export default function CustomerPaymentsPage() {
               {payments.map((payment) => (
                 <TableRow key={payment._id}>
                   <TableCell className="max-w-52">
-                    <p className="truncate font-medium">{payment.serviceTitle}</p>
-                    <p className="truncate text-xs text-muted-foreground">
+                    <p className="truncate font-medium">
+                      {payment.serviceTitle}
+                    </p>
+                    <p className="text-muted-foreground truncate text-xs">
                       {payment.customerName}
                     </p>
                   </TableCell>
@@ -115,7 +128,7 @@ export default function CustomerPaymentsPage() {
                   </TableCell>
                   <TableCell className="max-w-44">
                     <p
-                      className="truncate font-mono text-xs text-muted-foreground"
+                      className="text-muted-foreground truncate font-mono text-xs"
                       title={payment.transactionId ?? payment.stripeSessionId}
                     >
                       {payment.transactionId ?? payment.stripeSessionId}
@@ -142,5 +155,5 @@ export default function CustomerPaymentsPage() {
         </div>
       )}
     </div>
-  );
+  )
 }

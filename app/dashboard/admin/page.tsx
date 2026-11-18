@@ -1,20 +1,20 @@
-"use client";
+"use client"
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { BanknoteIcon, CalendarIcon, UsersIcon, WrenchIcon } from "lucide-react";
+import Link from "next/link"
+import { useEffect, useState } from "react"
+import { BanknoteIcon, CalendarIcon, UsersIcon, WrenchIcon } from "lucide-react"
 
-import { EmptyState } from "@/components/empty-state";
-import { StatusBadge } from "@/components/badges";
-import { StatCard } from "@/components/stat-card";
-import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/empty-state"
+import { StatusBadge } from "@/components/badges"
+import { StatCard } from "@/components/stat-card"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/components/ui/card"
 import {
   Table,
   TableBody,
@@ -22,8 +22,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Skeleton } from "@/components/ui/skeleton";
+} from "@/components/ui/table"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   ChartContainer,
   ChartLegend,
@@ -31,10 +31,10 @@ import {
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
-} from "@/components/ui/chart";
-import { api } from "@/lib/api";
-import { formatCurrency, formatDate } from "@/lib/format";
-import type { AdminStats, BookingStatus, Payment, Role } from "@/lib/types";
+} from "@/components/ui/chart"
+import { api } from "@/lib/api"
+import { formatCurrency, formatDate } from "@/lib/format"
+import type { AdminStats, BookingStatus, Payment, Role } from "@/lib/types"
 import {
   Bar,
   BarChart,
@@ -44,7 +44,7 @@ import {
   PieChart,
   XAxis,
   YAxis,
-} from "recharts";
+} from "recharts"
 
 const STATUS_COLORS: Record<BookingStatus, string> = {
   requested: "#3b82f6",
@@ -53,7 +53,7 @@ const STATUS_COLORS: Record<BookingStatus, string> = {
   completed: "#10b981",
   rejected: "#ef4444",
   cancelled: "#9ca3af",
-};
+}
 
 const statusChartConfig = {
   requested: { label: "Requested", color: "#3b82f6" },
@@ -62,74 +62,76 @@ const statusChartConfig = {
   completed: { label: "Completed", color: "#10b981" },
   rejected: { label: "Rejected", color: "#ef4444" },
   cancelled: { label: "Cancelled", color: "#9ca3af" },
-} satisfies ChartConfig;
+} satisfies ChartConfig
 
 const ROLE_COLORS: Record<Role, string> = {
   customer: "#3b82f6",
   technician: "#6366f1",
   admin: "#a855f7",
-};
+}
 
 const roleChartConfig = {
   customer: { label: "Customer", color: ROLE_COLORS.customer },
   technician: { label: "Technician", color: ROLE_COLORS.technician },
   admin: { label: "Admin", color: ROLE_COLORS.admin },
   count: { label: "Users", color: ROLE_COLORS.customer },
-} satisfies ChartConfig;
+} satisfies ChartConfig
 
 const revenueChartConfig = {
   total: { label: "Revenue", color: "#10b981" },
-} satisfies ChartConfig;
+} satisfies ChartConfig
 
 /** Groups payments into ascending local-day buckets for the revenue chart. */
 function buildRevenueData(payments: Payment[]) {
-  const byDay = new Map<string, number>();
+  const byDay = new Map<string, number>()
   for (const payment of payments) {
     const day = new Date(payment.paidAt).toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
-    });
-    byDay.set(day, (byDay.get(day) ?? 0) + Number(payment.amount || 0));
+    })
+    byDay.set(day, (byDay.get(day) ?? 0) + Number(payment.amount || 0))
   }
-  return [...byDay.entries()]
-    .map(([day, total]) => ({ day, total }))
-    .reverse();
+  return [...byDay.entries()].map(([day, total]) => ({ day, total })).reverse()
 }
 
 /** Admin home: platform KPIs, bookings-by-status and users-by-role charts. */
 export default function AdminOverviewPage() {
-  const [stats, setStats] = useState<AdminStats | null>(null);
-  const [payments, setPayments] = useState<Payment[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [stats, setStats] = useState<AdminStats | null>(null)
+  const [payments, setPayments] = useState<Payment[] | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    let cancelled = false;
+    let cancelled = false
     Promise.all([
       api<{ stats: AdminStats }>("/api/admin/stats"),
       api<{ payments: Payment[] }>("/api/admin/payments"),
     ])
       .then(([statsRes, paymentsRes]) => {
         if (!cancelled) {
-          setStats(statsRes.stats);
-          setPayments(paymentsRes.payments);
+          setStats(statsRes.stats)
+          setPayments(paymentsRes.payments)
         }
       })
       .catch((err: unknown) => {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Failed to load the admin overview");
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Failed to load the admin overview"
+          )
         }
-      });
+      })
     return () => {
-      cancelled = true;
-    };
-  }, []);
+      cancelled = true
+    }
+  }, [])
 
   if (error) {
     return (
-      <p className="py-16 text-center text-sm text-destructive" role="alert">
+      <p className="text-destructive py-16 text-center text-sm" role="alert">
         {error}
       </p>
-    );
+    )
   }
 
   if (stats === null || payments === null) {
@@ -148,7 +150,7 @@ export default function AdminOverviewPage() {
         </div>
         <Skeleton className="h-64 rounded-lg" />
       </div>
-    );
+    )
   }
 
   const statusData = (Object.keys(STATUS_COLORS) as BookingStatus[])
@@ -156,28 +158,34 @@ export default function AdminOverviewPage() {
       status,
       count: stats.bookings.byStatus[status] ?? 0,
     }))
-    .filter((entry) => entry.count > 0);
+    .filter((entry) => entry.count > 0)
 
   const roleData: { role: Role; count: number }[] = [
     { role: "customer", count: stats.users.customer },
     { role: "technician", count: stats.users.technician },
     { role: "admin", count: stats.users.admin },
-  ];
+  ]
 
-  const revenueData = buildRevenueData(payments);
+  const revenueData = buildRevenueData(payments)
 
-  const recent = stats.recentBookings;
+  const recent = stats.recentBookings
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Admin overview</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Admin overview
+          </h1>
+          <p className="text-muted-foreground mt-1 text-sm">
             Platform health across users, services and bookings.
           </p>
         </div>
-        <Button render={<Link href="/dashboard/admin/services" />} variant="outline" size="sm">
+        <Button
+          render={<Link href="/dashboard/admin/services" />}
+          variant="outline"
+          size="sm"
+        >
           <WrenchIcon /> Approval queue
         </Button>
       </div>
@@ -220,11 +228,14 @@ export default function AdminOverviewPage() {
           </CardHeader>
           <CardContent className="px-5">
             {statusData.length === 0 ? (
-              <p className="py-10 text-center text-sm text-muted-foreground">
+              <p className="text-muted-foreground py-10 text-center text-sm">
                 Nothing to chart yet.
               </p>
             ) : (
-              <ChartContainer config={statusChartConfig} className="mx-auto aspect-square max-h-72">
+              <ChartContainer
+                config={statusChartConfig}
+                className="mx-auto aspect-square max-h-72"
+              >
                 <PieChart>
                   <Pie
                     data={statusData}
@@ -236,7 +247,10 @@ export default function AdminOverviewPage() {
                     stroke="none"
                   >
                     {statusData.map((entry) => (
-                      <Cell key={entry.status} fill={STATUS_COLORS[entry.status]} />
+                      <Cell
+                        key={entry.status}
+                        fill={STATUS_COLORS[entry.status]}
+                      />
                     ))}
                   </Pie>
                   <ChartTooltip content={<ChartTooltipContent />} />
@@ -255,12 +269,18 @@ export default function AdminOverviewPage() {
           </CardHeader>
           <CardContent className="px-5">
             {revenueData.length === 0 ? (
-              <p className="py-10 text-center text-sm text-muted-foreground">
+              <p className="text-muted-foreground py-10 text-center text-sm">
                 No payments recorded yet.
               </p>
             ) : (
-              <ChartContainer config={revenueChartConfig} className="h-[260px] w-full">
-                <BarChart data={revenueData} margin={{ top: 8, right: 8, bottom: 8, left: 0 }}>
+              <ChartContainer
+                config={revenueChartConfig}
+                className="h-[260px] w-full"
+              >
+                <BarChart
+                  data={revenueData}
+                  margin={{ top: 8, right: 8, bottom: 8, left: 0 }}
+                >
                   <CartesianGrid vertical={false} strokeDasharray="3 3" />
                   <XAxis
                     dataKey="day"
@@ -295,7 +315,10 @@ export default function AdminOverviewPage() {
             <CardDescription>Who makes up the platform</CardDescription>
           </CardHeader>
           <CardContent className="px-5">
-            <ChartContainer config={roleChartConfig} className="h-[260px] w-full">
+            <ChartContainer
+              config={roleChartConfig}
+              className="h-[260px] w-full"
+            >
               <BarChart
                 data={roleData}
                 layout="vertical"
@@ -371,16 +394,22 @@ export default function AdminOverviewPage() {
                   {recent.map((booking) => (
                     <TableRow key={booking._id}>
                       <TableCell className="max-w-44">
-                        <p className="truncate font-medium">{booking.serviceTitle}</p>
-                        <p className="truncate text-xs text-muted-foreground">
+                        <p className="truncate font-medium">
+                          {booking.serviceTitle}
+                        </p>
+                        <p className="text-muted-foreground truncate text-xs">
                           {booking.category}
                         </p>
                       </TableCell>
                       <TableCell className="max-w-36">
-                        <p className="truncate text-sm">{booking.customerName}</p>
+                        <p className="truncate text-sm">
+                          {booking.customerName}
+                        </p>
                       </TableCell>
                       <TableCell className="max-w-36">
-                        <p className="truncate text-sm">{booking.technicianName}</p>
+                        <p className="truncate text-sm">
+                          {booking.technicianName}
+                        </p>
                       </TableCell>
                       <TableCell className="text-sm whitespace-nowrap">
                         {formatDate(booking.createdAt)}
@@ -389,7 +418,9 @@ export default function AdminOverviewPage() {
                         <StatusBadge status={booking.status} />
                       </TableCell>
                       <TableCell className="text-right text-sm whitespace-nowrap">
-                        {formatCurrency(booking.finalAmount ?? booking.basePrice)}
+                        {formatCurrency(
+                          booking.finalAmount ?? booking.basePrice
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -400,5 +431,5 @@ export default function AdminOverviewPage() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

@@ -1,10 +1,10 @@
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/ui/skeleton"
 
 /** Full-page skeleton while the session resolves (prevents sign-in flash). */
 export function DashboardSkeleton() {
   return (
     <div className="flex min-h-screen">
-      <div className="hidden w-60 shrink-0 border-r bg-muted/30 lg:block">
+      <div className="bg-muted/30 hidden w-60 shrink-0 border-r lg:block">
         <div className="flex h-14 items-center border-b px-4">
           <Skeleton className="h-6 w-28" />
         </div>
@@ -30,5 +30,5 @@ export function DashboardSkeleton() {
         </div>
       </div>
     </div>
-  );
+  )
 }
