@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   CalendarIcon,
+  ChevronDownIcon,
   CreditCardIcon,
   HomeIcon,
   InboxIcon,
@@ -240,12 +241,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <DropdownMenu>
               <DropdownMenuTrigger
                 aria-label="Account menu"
-                className="flex items-center gap-2 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="flex items-center gap-2 rounded-lg px-1.5 py-1 outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <Avatar className="size-8">
                   <AvatarImage src={user.image ?? undefined} alt={user.name} />
                   <AvatarFallback>{initials(user.name)}</AvatarFallback>
                 </Avatar>
+                <span className="hidden flex-col items-start leading-tight sm:flex">
+                  <span className="max-w-40 truncate text-sm font-medium">{user.name}</span>
+                  <span className="text-xs capitalize text-muted-foreground">{role}</span>
+                </span>
+                <ChevronDownIcon className="hidden size-3.5 text-muted-foreground sm:block" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel className="flex flex-col gap-1">

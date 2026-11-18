@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/chart";
 import { api } from "@/lib/api";
 import { formatCurrency, formatDate } from "@/lib/format";
-import type { AdminStats, BookingStatus, Role } from "@/lib/types";
+import type { AdminStats, BookingStatus, Payment, Role } from "@/lib/types";
 import {
   Bar,
   BarChart,
@@ -77,16 +77,42 @@ const roleChartConfig = {
   count: { label: "Users", color: ROLE_COLORS.customer },
 } satisfies ChartConfig;
 
+const revenueChartConfig = {
+  total: { label: "Revenue", color: "#10b981" },
+} satisfies ChartConfig;
+
+/** Groups payments into ascending local-day buckets for the revenue chart. */
+function buildRevenueData(payments: Payment[]) {
+  const byDay = new Map<string, number>();
+  for (const payment of payments) {
+    const day = new Date(payment.paidAt).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+    byDay.set(day, (byDay.get(day) ?? 0) + Number(payment.amount || 0));
+  }
+  return [...byDay.entries()]
+    .map(([day, total]) => ({ day, total }))
+    .reverse();
+}
+
 /** Admin home: platform KPIs, bookings-by-status and users-by-role charts. */
 export default function AdminOverviewPage() {
   const [stats, setStats] = useState<AdminStats | null>(null);
+  const [payments, setPayments] = useState<Payment[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    api<{ stats: AdminStats }>("/api/admin/stats")
-      .then((res) => {
-        if (!cancelled) setStats(res.stats);
+    Promise.all([
+      api<{ stats: AdminStats }>("/api/admin/stats"),
+      api<{ payments: Payment[] }>("/api/admin/payments"),
+    ])
+      .then(([statsRes, paymentsRes]) => {
+        if (!cancelled) {
+          setStats(statsRes.stats);
+          setPayments(paymentsRes.payments);
+        }
       })
       .catch((err: unknown) => {
         if (!cancelled) {
@@ -106,7 +132,7 @@ export default function AdminOverviewPage() {
     );
   }
 
-  if (stats === null) {
+  if (stats === null || payments === null) {
     return (
       <div className="space-y-4">
         <Skeleton className="h-8 w-56" />
@@ -115,7 +141,8 @@ export default function AdminOverviewPage() {
             <Skeleton key={index} className="h-24 rounded-lg" />
           ))}
         </div>
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className="grid gap-4 lg:grid-cols-3">
+          <Skeleton className="h-72 rounded-lg" />
           <Skeleton className="h-72 rounded-lg" />
           <Skeleton className="h-72 rounded-lg" />
         </div>
@@ -136,6 +163,8 @@ export default function AdminOverviewPage() {
     { role: "technician", count: stats.users.technician },
     { role: "admin", count: stats.users.admin },
   ];
+
+  const revenueData = buildRevenueData(payments);
 
   const recent = stats.recentBookings;
 
@@ -182,7 +211,7 @@ export default function AdminOverviewPage() {
         />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-3">
         {/* Bookings by status */}
         <Card className="gap-0 py-5">
           <CardHeader>
@@ -213,6 +242,47 @@ export default function AdminOverviewPage() {
                   <ChartTooltip content={<ChartTooltipContent />} />
                   <ChartLegend content={<ChartLegendContent />} />
                 </PieChart>
+              </ChartContainer>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Revenue by day */}
+        <Card className="gap-0 py-5">
+          <CardHeader>
+            <CardTitle className="text-base">Revenue</CardTitle>
+            <CardDescription>Paid amounts grouped by day</CardDescription>
+          </CardHeader>
+          <CardContent className="px-5">
+            {revenueData.length === 0 ? (
+              <p className="py-10 text-center text-sm text-muted-foreground">
+                No payments recorded yet.
+              </p>
+            ) : (
+              <ChartContainer config={revenueChartConfig} className="h-[260px] w-full">
+                <BarChart data={revenueData} margin={{ top: 8, right: 8, bottom: 8, left: 0 }}>
+                  <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="day"
+                    axisLine={false}
+                    tickLine={false}
+                    tickMargin={6}
+                    tick={{ fontSize: 11 }}
+                  />
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 11 }}
+                    width={52}
+                    tickFormatter={(value: number) => formatCurrency(value)}
+                  />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey="total" radius={[4, 4, 0, 0]}>
+                    {revenueData.map((entry) => (
+                      <Cell key={entry.day} fill="#10b981" />
+                    ))}
+                  </Bar>
+                </BarChart>
               </ChartContainer>
             )}
           </CardContent>
