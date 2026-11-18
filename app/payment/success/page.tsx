@@ -29,20 +29,28 @@ export default function PaymentSuccessPage() {
 
   useEffect(() => {
     const sessionId = new URLSearchParams(window.location.search).get("session_id");
-    if (!sessionId) {
-      setState({ kind: "no-session" });
-      return;
-    }
-
     let cancelled = false;
-    api<{ paid: boolean; alreadyPaid?: boolean; payment?: Payment | null; message?: string }>(
-      "/api/payments/verify",
-      { query: { session_id: sessionId } }
-    )
+
+    // Single promise chain — all state updates happen inside callbacks.
+    Promise.resolve(sessionId)
+      .then((id) =>
+        id
+          ? api<{ paid: boolean; alreadyPaid?: boolean; payment?: Payment | null; message?: string }>(
+              "/api/payments/verify",
+              { query: { session_id: id } }
+            )
+          : null
+      )
       .then((res) => {
         if (cancelled) return;
-        if (res.paid) {
-          setState({ kind: "paid", payment: res.payment ?? null, alreadyPaid: Boolean(res.alreadyPaid) });
+        if (res === null) {
+          setState({ kind: "no-session" });
+        } else if (res.paid) {
+          setState({
+            kind: "paid",
+            payment: res.payment ?? null,
+            alreadyPaid: Boolean(res.alreadyPaid),
+          });
         } else {
           setState({ kind: "pending" });
         }
