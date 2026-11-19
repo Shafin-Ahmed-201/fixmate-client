@@ -44,7 +44,7 @@ export default function CustomerPaymentsPage() {
 
   if (error) {
     return (
-      <p className="text-destructive py-16 text-center text-sm" role="alert">
+      <p className="py-16 text-center text-sm text-destructive" role="alert">
         {error}
       </p>
     )
@@ -69,7 +69,7 @@ export default function CustomerPaymentsPage() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Payments</h1>
-          <p className="text-muted-foreground mt-1 text-sm">
+          <p className="mt-1 text-sm text-muted-foreground">
             {payments.length > 0 && (
               <>
                 {formatCurrency(totalSpent)} paid across {payments.length}{" "}
@@ -81,6 +81,7 @@ export default function CustomerPaymentsPage() {
           </p>
         </div>
         <Button
+          nativeButton={false}
           render={<Link href="/dashboard/customer/bookings" />}
           size="sm"
           variant="outline"
@@ -95,7 +96,11 @@ export default function CustomerPaymentsPage() {
           title="No payments yet"
           description="When a technician completes a job you can pay securely with Stripe — receipts show up here."
         >
-          <Button render={<Link href="/services" />} className="mt-4">
+          <Button
+            nativeButton={false}
+            render={<Link href="/services" />}
+            className="mt-4"
+          >
             <CreditCardIcon /> Book a repair
           </Button>
         </EmptyState>
@@ -119,7 +124,7 @@ export default function CustomerPaymentsPage() {
                     <p className="truncate font-medium">
                       {payment.serviceTitle}
                     </p>
-                    <p className="text-muted-foreground truncate text-xs">
+                    <p className="truncate text-xs text-muted-foreground">
                       {payment.customerName}
                     </p>
                   </TableCell>
@@ -128,7 +133,7 @@ export default function CustomerPaymentsPage() {
                   </TableCell>
                   <TableCell className="max-w-44">
                     <p
-                      className="text-muted-foreground truncate font-mono text-xs"
+                      className="truncate font-mono text-xs text-muted-foreground"
                       title={payment.transactionId ?? payment.stripeSessionId}
                     >
                       {payment.transactionId ?? payment.stripeSessionId}

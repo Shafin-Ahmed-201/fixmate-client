@@ -146,10 +146,11 @@ export function ServiceDetail({ serviceId }: { serviceId: string }) {
   if (loadError) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-20 text-center">
-        <WrenchIcon className="text-muted-foreground mx-auto size-10" />
+        <WrenchIcon className="mx-auto size-10 text-muted-foreground" />
         <h1 className="mt-4 text-xl font-semibold">Service unavailable</h1>
-        <p className="text-muted-foreground mt-2 text-sm">{loadError}</p>
+        <p className="mt-2 text-sm text-muted-foreground">{loadError}</p>
         <Button
+          nativeButton={false}
           render={<Link href="/services" />}
           variant="outline"
           className="mt-6"
@@ -182,6 +183,7 @@ export function ServiceDetail({ serviceId }: { serviceId: string }) {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       <Button
+        nativeButton={false}
         render={<Link href="/services" />}
         variant="ghost"
         size="sm"
@@ -192,7 +194,7 @@ export function ServiceDetail({ serviceId }: { serviceId: string }) {
 
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
-          <div className="bg-muted relative aspect-video overflow-hidden rounded-lg border">
+          <div className="relative aspect-video overflow-hidden rounded-lg border bg-muted">
             {service.image ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -201,7 +203,7 @@ export function ServiceDetail({ serviceId }: { serviceId: string }) {
                 className="h-full w-full object-cover"
               />
             ) : (
-              <div className="text-muted-foreground flex h-full items-center justify-center">
+              <div className="flex h-full items-center justify-center text-muted-foreground">
                 <WrenchIcon className="size-10" />
               </div>
             )}
@@ -217,7 +219,7 @@ export function ServiceDetail({ serviceId }: { serviceId: string }) {
             <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
               {service.title}
             </h1>
-            <div className="text-muted-foreground mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
               <span className="inline-flex items-center gap-1.5">
                 <UserIcon className="size-4" /> {service.technicianName}
               </span>
@@ -236,7 +238,7 @@ export function ServiceDetail({ serviceId }: { serviceId: string }) {
 
           <div className="rounded-lg border p-5">
             <h2 className="font-medium">About this service</h2>
-            <p className="text-muted-foreground mt-2 text-sm leading-relaxed whitespace-pre-line">
+            <p className="mt-2 text-sm leading-relaxed whitespace-pre-line text-muted-foreground">
               {service.description}
             </p>
           </div>
@@ -260,8 +262,8 @@ export function ServiceDetail({ serviceId }: { serviceId: string }) {
               },
             ].map((item) => (
               <div key={item.label} className="rounded-lg border p-4">
-                <item.icon className="text-muted-foreground size-4" />
-                <p className="text-muted-foreground mt-2 text-xs">
+                <item.icon className="size-4 text-muted-foreground" />
+                <p className="mt-2 text-xs text-muted-foreground">
                   {item.label}
                 </p>
                 <p className="text-sm font-medium">{item.value}</p>
@@ -273,15 +275,15 @@ export function ServiceDetail({ serviceId }: { serviceId: string }) {
         {/* Booking card */}
         <aside className="lg:sticky lg:top-20 lg:self-start">
           <div className="rounded-lg border p-5 shadow-sm">
-            <p className="text-muted-foreground text-sm">Base price</p>
+            <p className="text-sm text-muted-foreground">Base price</p>
             <p className="text-3xl font-semibold tracking-tight">
               {formatCurrency(service.basePrice)}
             </p>
-            <p className="text-muted-foreground mt-1 text-xs">
+            <p className="mt-1 text-xs text-muted-foreground">
               Final price is confirmed by the technician before work starts.
             </p>
 
-            <ul className="text-muted-foreground mt-4 space-y-2 border-t pt-4 text-sm">
+            <ul className="mt-4 space-y-2 border-t pt-4 text-sm text-muted-foreground">
               <li className="flex items-center gap-2">
                 <ShieldCheckIcon className="size-4 text-emerald-500" /> Verified
                 technician
@@ -307,7 +309,7 @@ export function ServiceDetail({ serviceId }: { serviceId: string }) {
                 : "Currently unavailable"}
             </Button>
             {!service.isAvailable && (
-              <p className="text-muted-foreground mt-2 text-center text-xs">
+              <p className="mt-2 text-center text-xs text-muted-foreground">
                 The technician has paused this service.
               </p>
             )}
@@ -348,7 +350,7 @@ export function ServiceDetail({ serviceId }: { serviceId: string }) {
                   onChange={(event) => setPhone(event.target.value)}
                   disabled={submitting}
                 />
-                <p className="text-muted-foreground text-xs">
+                <p className="text-xs text-muted-foreground">
                   Pre-filled from your profile — the technician will call this
                   number.
                 </p>
@@ -394,7 +396,7 @@ export function ServiceDetail({ serviceId }: { serviceId: string }) {
                   descriptionLength < MIN_DESCRIPTION_LENGTH
                 }
               />
-              <p className="text-muted-foreground text-xs">
+              <p className="text-xs text-muted-foreground">
                 Minimum {MIN_DESCRIPTION_LENGTH} characters so the technician
                 can prepare.
               </p>

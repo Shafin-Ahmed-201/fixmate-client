@@ -128,7 +128,7 @@ export default function AdminOverviewPage() {
 
   if (error) {
     return (
-      <p className="text-destructive py-16 text-center text-sm" role="alert">
+      <p className="py-16 text-center text-sm text-destructive" role="alert">
         {error}
       </p>
     )
@@ -177,11 +177,12 @@ export default function AdminOverviewPage() {
           <h1 className="text-2xl font-semibold tracking-tight">
             Admin overview
           </h1>
-          <p className="text-muted-foreground mt-1 text-sm">
+          <p className="mt-1 text-sm text-muted-foreground">
             Platform health across users, services and bookings.
           </p>
         </div>
         <Button
+          nativeButton={false}
           render={<Link href="/dashboard/admin/services" />}
           variant="outline"
           size="sm"
@@ -228,7 +229,7 @@ export default function AdminOverviewPage() {
           </CardHeader>
           <CardContent className="px-5">
             {statusData.length === 0 ? (
-              <p className="text-muted-foreground py-10 text-center text-sm">
+              <p className="py-10 text-center text-sm text-muted-foreground">
                 Nothing to chart yet.
               </p>
             ) : (
@@ -269,7 +270,7 @@ export default function AdminOverviewPage() {
           </CardHeader>
           <CardContent className="px-5">
             {revenueData.length === 0 ? (
-              <p className="text-muted-foreground py-10 text-center text-sm">
+              <p className="py-10 text-center text-sm text-muted-foreground">
                 No payments recorded yet.
               </p>
             ) : (
@@ -363,8 +364,10 @@ export default function AdminOverviewPage() {
             <CardDescription>The five newest requests</CardDescription>
           </div>
           <Button
+            nativeButton={false}
             render={<Link href="/dashboard/admin/bookings" />}
             variant="outline"
+            className="mb-1"
             size="xs"
           >
             View all
@@ -397,7 +400,7 @@ export default function AdminOverviewPage() {
                         <p className="truncate font-medium">
                           {booking.serviceTitle}
                         </p>
-                        <p className="text-muted-foreground truncate text-xs">
+                        <p className="truncate text-xs text-muted-foreground">
                           {booking.category}
                         </p>
                       </TableCell>

@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
@@ -76,7 +77,7 @@ export default function AdminUsersPage() {
 
   if (error) {
     return (
-      <p className="text-destructive py-16 text-center text-sm" role="alert">
+      <p className="py-16 text-center text-sm text-destructive" role="alert">
         {error}
       </p>
     )
@@ -106,7 +107,7 @@ export default function AdminUsersPage() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Users</h1>
-          <p className="text-muted-foreground mt-1 text-sm">
+          <p className="mt-1 text-sm text-muted-foreground">
             {users.length} registered account{users.length === 1 ? "" : "s"}
           </p>
         </div>
@@ -114,7 +115,7 @@ export default function AdminUsersPage() {
 
       {/* Client-side search */}
       <div className="relative max-w-sm">
-        <SearchIcon className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+        <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
@@ -171,7 +172,7 @@ export default function AdminUsersPage() {
                         </Avatar>
                         <div className="min-w-0">
                           <p className="truncate font-medium">{user.name}</p>
-                          <p className="text-muted-foreground truncate text-xs">
+                          <p className="truncate text-xs text-muted-foreground">
                             {user.email}
                           </p>
                         </div>
@@ -205,7 +206,9 @@ export default function AdminUsersPage() {
                             Change role <ChevronDownIcon />
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Set role</DropdownMenuLabel>
+                            <DropdownMenuGroup>
+                              <DropdownMenuLabel>Set role</DropdownMenuLabel>
+                            </DropdownMenuGroup>
                             {ROLES.map((role) => (
                               <DropdownMenuItem
                                 key={role}

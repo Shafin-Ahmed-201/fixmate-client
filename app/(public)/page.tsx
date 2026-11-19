@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import {
+  ArrowUpRight,
   CalendarCheckIcon,
   CreditCardIcon,
   ShieldCheckIcon,
@@ -18,6 +19,8 @@ import { ServiceCard } from "@/components/service-card"
 import { CATEGORIES } from "@/lib/constants"
 import { api } from "@/lib/api"
 import type { Service, ServiceListResponse } from "@/lib/types"
+import HeroSection from "@/components/hero-section"
+import CategorySection from "@/components/category-section"
 
 const STEPS = [
   {
@@ -65,111 +68,10 @@ export default function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="from-primary/8 to-background relative overflow-hidden border-b bg-gradient-to-b">
-        <div
-          aria-hidden
-          className="bg-primary/10 pointer-events-none absolute -top-32 left-1/2 h-64 w-[42rem] -translate-x-1/2 rounded-full blur-3xl"
-        />
-        <div className="mx-auto max-w-4xl px-4 py-16 text-center sm:px-6 lg:py-24">
-          <Badge variant="secondary" className="mb-4 border-transparent">
-            <ShieldCheckIcon /> Verified local technicians
-          </Badge>
-          <h1 className="text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
-            Repairs done right,{" "}
-            <span className="text-primary">booked in minutes</span>
-          </h1>
-          <p className="text-muted-foreground mx-auto mt-4 max-w-2xl text-base text-pretty sm:text-lg">
-            FixMate connects you with trusted technicians for smartphones,
-            laptops, ACs, refrigerators, TVs, washing machines and electrical
-            work — transparent pricing, secure payment, real reviews.
-          </p>
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-            <Button render={<Link href="/services" />} size="lg">
-              <WrenchIcon /> Browse services
-            </Button>
-            <Button
-              render={<Link href="/sign-up" />}
-              size="lg"
-              variant="outline"
-            >
-              Become a technician
-            </Button>
-          </div>
-
-          <dl className="mx-auto mt-12 grid max-w-lg grid-cols-3 gap-4 text-center">
-            {[
-              { value: "7+", label: "Repair categories" },
-              { value: "100%", label: "Secure Stripe payments" },
-              { value: "24/7", label: "Booking online" },
-            ].map((stat) => (
-              <div key={stat.label}>
-                <dt className="text-2xl font-semibold tracking-tight">
-                  {stat.value}
-                </dt>
-                <dd className="text-muted-foreground text-xs sm:text-sm">
-                  {stat.label}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
-        <div className="mb-8 text-center">
-          <h2 className="text-2xl font-semibold tracking-tight">
-            How FixMate works
-          </h2>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Three steps from problem to fixed.
-          </p>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {STEPS.map((step, index) => (
-            <Card key={step.title} className="gap-0 py-5 text-center">
-              <CardContent className="flex flex-col items-center gap-2 px-5">
-                <span className="bg-primary/10 text-primary flex size-11 items-center justify-center rounded-full">
-                  <step.icon className="size-5" />
-                </span>
-                <span className="text-muted-foreground text-xs font-medium">
-                  Step {index + 1}
-                </span>
-                <h3 className="font-medium">{step.title}</h3>
-                <p className="text-muted-foreground text-sm">{step.text}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
+      <HeroSection></HeroSection>
 
       {/* Categories */}
-      <section className="bg-muted/30 border-t">
-        <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
-          <div className="mb-8 text-center">
-            <h2 className="text-2xl font-semibold tracking-tight">
-              Browse by category
-            </h2>
-            <p className="text-muted-foreground mt-1 text-sm">
-              Pick the device or appliance you need fixed.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {CATEGORIES.map((category) => (
-              <Link
-                key={category}
-                href={`/services?category=${encodeURIComponent(category)}`}
-                className="group bg-background hover:border-primary/40 flex items-center justify-between rounded-lg border p-4 text-sm font-medium transition-all hover:shadow-sm"
-              >
-                {category}
-                <span className="text-muted-foreground group-hover:text-primary transition-transform group-hover:translate-x-0.5">
-                  →
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+      <CategorySection></CategorySection>
 
       {/* Featured services */}
       <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
@@ -178,17 +80,20 @@ export default function HomePage() {
             <h2 className="text-2xl font-semibold tracking-tight">
               Fresh on FixMate
             </h2>
-            <p className="text-muted-foreground mt-1 text-sm">
+            <p className="mt-1 text-sm text-muted-foreground">
               The latest approved services from our technicians.
             </p>
           </div>
-          <Button
-            render={<Link href="/services" />}
-            variant="outline"
-            size="sm"
-          >
-            View all
-          </Button>
+            {/* Bottom CTA */}
+    <div className="mt-10 text-center">
+      <Link
+        href="/services"
+        className="inline-flex items-center gap-2 text-sm font-semibold text-primary transition-all hover:gap-3"
+      >
+        Explore all services
+        <ArrowUpRight className="size-4" />
+      </Link>
+    </div>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -207,25 +112,57 @@ export default function HomePage() {
         </div>
 
         {featured?.length === 0 && (
-          <p className="text-muted-foreground py-8 text-center text-sm">
+          <p className="py-8 text-center text-sm text-muted-foreground">
             No services published yet — check back soon.
           </p>
         )}
       </section>
 
+         {/* How it works */}
+      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
+        <div className="mb-8 text-center">
+          <h2 className="text-2xl font-semibold tracking-tight">
+            How FixMate works
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Four steps from problem to fixed.
+          </p>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {STEPS.map((step, index) => (
+            <Card
+              key={step.title}
+              className="gap-0 py-5 text-center transition-shadow hover:shadow-sm"
+            >
+              <CardContent className="flex flex-col items-center gap-2 px-5">
+                <span className="flex size-11 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <step.icon className="size-5" />
+                </span>
+                <span className="text-xs font-medium text-muted-foreground">
+                  Step {index + 1}
+                </span>
+                <h3 className="font-medium">{step.title}</h3>
+                <p className="text-sm text-muted-foreground">{step.text}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6">
-        <div className="bg-primary text-primary-foreground flex flex-col items-center justify-between gap-6 rounded-2xl px-6 py-10 text-center sm:flex-row sm:px-10 sm:text-left">
+        <div className="flex flex-col items-center justify-between gap-6 rounded-2xl bg-primary px-6 py-10 text-center text-primary-foreground sm:flex-row sm:px-10 sm:text-left">
           <div>
             <h2 className="text-2xl font-semibold tracking-tight">
               Are you a technician?
             </h2>
-            <p className="text-primary-foreground/80 mt-1 max-w-xl text-sm">
+            <p className="mt-1 max-w-xl text-sm text-primary-foreground/80">
               Create a free profile, publish your services and start earning —
               you only pay Stripe&apos;s standard processing fees.
             </p>
           </div>
           <Button
+            nativeButton={false}
             render={<Link href="/sign-up" />}
             size="lg"
             variant="secondary"

@@ -24,11 +24,11 @@ const SUPPORT_LINKS = [
 /** Public site footer — consistent across every marketing page. */
 export function Footer() {
   return (
-    <footer className="bg-muted/30 border-t">
-      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
+    <footer className="border-t bg-muted/40">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
         <div className="space-y-3">
           <Logo />
-          <p className="text-muted-foreground text-sm">
+          <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">
             Book trusted local technicians for smartphone, appliance, AC and
             electrical repairs — fast, transparent and affordable.
           </p>
@@ -41,7 +41,7 @@ export function Footer() {
               <span
                 key={label}
                 aria-label={label}
-                className="bg-background text-muted-foreground hover:text-foreground flex size-8 items-center justify-center rounded-lg border transition-colors"
+                className="flex size-8 items-center justify-center rounded-lg border bg-background text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
               >
                 <Icon className="size-4" />
               </span>
@@ -51,12 +51,12 @@ export function Footer() {
 
         <div>
           <h3 className="mb-3 text-sm font-semibold">Company</h3>
-          <ul className="text-muted-foreground space-y-2 text-sm">
+          <ul className="space-y-2 text-sm text-muted-foreground">
             {COMPANY_LINKS.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="hover:text-foreground transition-colors"
+                  className="inline-block transition-colors hover:text-foreground"
                 >
                   {link.label}
                 </Link>
@@ -67,12 +67,12 @@ export function Footer() {
 
         <div>
           <h3 className="mb-3 text-sm font-semibold">Categories</h3>
-          <ul className="text-muted-foreground space-y-2 text-sm">
+          <ul className="space-y-2 text-sm text-muted-foreground">
             {CATEGORIES.slice(0, 5).map((category) => (
               <li key={category}>
                 <Link
                   href={`/services?category=${encodeURIComponent(category)}`}
-                  className="hover:text-foreground transition-colors"
+                  className="inline-block transition-colors hover:text-foreground"
                 >
                   {category}
                 </Link>
@@ -83,34 +83,34 @@ export function Footer() {
 
         <div>
           <h3 className="mb-3 text-sm font-semibold">Support</h3>
-          <ul className="text-muted-foreground space-y-2 text-sm">
+          <ul className="space-y-2 text-sm text-muted-foreground">
             {SUPPORT_LINKS.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="hover:text-foreground transition-colors"
+                  className="inline-block transition-colors hover:text-foreground"
                 >
                   {link.label}
                 </Link>
               </li>
             ))}
           </ul>
-          <ul className="text-muted-foreground mt-4 space-y-2 text-sm">
+          <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
             <li className="flex items-center gap-2">
-              <PhoneIcon className="size-4" /> +880 1700-000000
+              <PhoneIcon className="size-4 shrink-0" /> +880 1700-000000
             </li>
             <li className="flex items-center gap-2">
-              <MailIcon className="size-4" /> support@fixmate.com
+              <MailIcon className="size-4 shrink-0" /> support@fixmate.com
             </li>
             <li className="flex items-center gap-2">
-              <MapPinIcon className="size-4" /> Dhaka, Bangladesh
+              <MapPinIcon className="size-4 shrink-0" /> Dhaka, Bangladesh
             </li>
           </ul>
         </div>
       </div>
 
       <div className="border-t">
-        <div className="text-muted-foreground mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 py-4 text-xs sm:flex-row sm:px-6">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 py-4 text-xs text-muted-foreground sm:flex-row sm:px-6">
           <p>© {new Date().getFullYear()} FixMate. All rights reserved.</p>
           <p>Repair bookings made simple.</p>
         </div>

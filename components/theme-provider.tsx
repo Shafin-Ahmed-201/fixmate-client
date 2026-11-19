@@ -43,14 +43,22 @@ function ThemeHotkey() {
         return
       }
 
-      if (event.metaKey || event.ctrlKey || event.altKey) {
-        return
-      }
-
       if (isTypingTarget(event.target)) {
         return
       }
 
+      // Ctrl/Cmd + D flips the theme; plain keypresses never do, so typing
+      // around the page can't randomly switch themes.
+      const isToggleChord =
+        (event.metaKey || event.ctrlKey) &&
+        !event.altKey &&
+        event.key.toLowerCase() === "d"
+
+      if (!isToggleChord) {
+        return
+      }
+
+      event.preventDefault()
       setTheme(resolvedTheme === "dark" ? "light" : "dark")
     }
 

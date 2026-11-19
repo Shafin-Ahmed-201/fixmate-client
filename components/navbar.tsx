@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -15,12 +16,14 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Logo } from "@/components/logo"
 import { RoleBadge } from "@/components/badges"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { authClient } from "@/lib/auth-client"
 import { invalidateToken } from "@/lib/api"
 import { dashboardHome } from "@/lib/constants"
 import { initials } from "@/lib/format"
 import type { Role } from "@/lib/types"
 import {
+  ChevronDownIcon,
   LayoutDashboardIcon,
   LogOutIcon,
   MenuIcon,
@@ -53,19 +56,23 @@ export function Navbar() {
     router.refresh()
   }
 
+  const isActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href)
+
   const linkClass = (href: string) =>
     cn(
-      "text-muted-foreground hover:text-foreground text-sm font-medium transition-colors",
-      (href === "/" ? pathname === "/" : pathname.startsWith(href)) &&
-        "text-foreground"
+      "rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
+      isActive(href)
+        ? "bg-primary/10 text-primary"
+        : "text-muted-foreground hover:bg-muted hover:text-foreground"
     )
 
   return (
-    <header className="bg-background/80 sticky top-0 z-40 border-b backdrop-blur">
+    <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
         <Logo />
 
-        <nav className="hidden items-center gap-6 md:flex" aria-label="Main">
+        <nav className="hidden items-center gap-1 md:flex" aria-label="Main">
           {LINKS.map((link) => (
             <Link
               key={link.href}
@@ -78,39 +85,51 @@ export function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
+          <ThemeToggle />
           {user ? (
             <DropdownMenu>
-              <DropdownMenuTrigger className="focus-visible:ring-ring flex items-center gap-2 rounded-full outline-none focus-visible:ring-2">
+              <DropdownMenuTrigger
+                aria-label="Account menu"
+                className="flex items-center gap-2 rounded-lg px-1.5 py-1 outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
                 <Avatar className="size-8">
                   <AvatarImage src={user.image ?? undefined} alt={user.name} />
                   <AvatarFallback>{initials(user.name)}</AvatarFallback>
                 </Avatar>
-                <span className="max-w-28 truncate text-sm font-medium">
-                  {user.name}
+                <span className="hidden flex-col items-start leading-tight sm:flex">
+                  <span className="max-w-40 truncate text-sm font-medium">
+                    {user.name}
+                  </span>
+                  <span className="text-xs text-muted-foreground capitalize">
+                    {user.role}
+                  </span>
                 </span>
+                <ChevronDownIcon className="hidden size-3.5 text-muted-foreground sm:block" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel className="flex flex-col gap-1">
-                  <span className="flex items-center gap-2">
-                    <span className="truncate">{user.name}</span>
-                    <RoleBadge role={user.role as Role} />
-                  </span>
-                  <span className="text-muted-foreground truncate text-xs font-normal">
-                    {user.email}
-                  </span>
-                </DropdownMenuLabel>
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel className="flex flex-col gap-1">
+                    <span className="flex items-center gap-2">
+                      <span className="truncate">{user.name}</span>
+                      <RoleBadge role={user.role as Role} />
+                    </span>
+                    <span className="truncate text-xs font-normal text-muted-foreground">
+                      {user.email}
+                    </span>
+                  </DropdownMenuLabel>
+                </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => router.push(dashboardHref)}
-                  className="gap-2"
-                >
-                  <LayoutDashboardIcon className="size-4" /> Dashboard
-                </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => router.push("/dashboard/profile")}
                   className="gap-2"
                 >
                   <UserIcon className="size-4" /> Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => router.push("/dashboard")}
+                  className="gap-2"
+                >
+                  <LayoutDashboardIcon className="size-4" /> Dashboard
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
@@ -126,31 +145,38 @@ export function Navbar() {
             <>
               <Button
                 render={<Link href="/sign-in" />}
+                nativeButton={false}
                 variant="ghost"
                 size="sm"
               >
                 Sign in
               </Button>
-              <Button render={<Link href="/sign-up" />} size="sm">
+              <Button
+                render={<Link href="/sign-up" />}
+                nativeButton={false}
+                size="sm"
+              >
                 Get started
               </Button>
             </>
           )}
         </div>
 
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          className="md:hidden"
-          aria-label="Toggle menu"
-          onClick={() => setMobileOpen((open) => !open)}
-        >
-          {mobileOpen ? <XIcon /> : <MenuIcon />}
-        </Button>
+        <div className="flex items-center gap-1 md:hidden">
+          <ThemeToggle />
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Toggle menu"
+            onClick={() => setMobileOpen((open) => !open)}
+          >
+            {mobileOpen ? <XIcon /> : <MenuIcon />}
+          </Button>
+        </div>
       </div>
 
       {mobileOpen && (
-        <div className="bg-background border-t px-4 py-3 md:hidden">
+        <div className="border-t bg-background px-4 py-3 md:hidden">
           <nav className="flex flex-col gap-3" aria-label="Mobile">
             {LINKS.map((link) => (
               <Link
@@ -170,6 +196,7 @@ export function Navbar() {
                   render={<Link href={dashboardHref} />}
                   variant="outline"
                   size="sm"
+                  nativeButton={false}
                   className="flex-1"
                   onClick={() => setMobileOpen(false)}
                 >
@@ -178,6 +205,7 @@ export function Navbar() {
                 <Button
                   variant="ghost"
                   size="sm"
+                  nativeButton={false}
                   className="flex-1"
                   onClick={handleSignOut}
                 >
@@ -190,6 +218,7 @@ export function Navbar() {
                   render={<Link href="/sign-in" />}
                   variant="outline"
                   size="sm"
+                  nativeButton={false}
                   className="flex-1"
                   onClick={() => setMobileOpen(false)}
                 >
@@ -198,6 +227,7 @@ export function Navbar() {
                 <Button
                   render={<Link href="/sign-up" />}
                   size="sm"
+                  nativeButton={false}
                   className="flex-1"
                   onClick={() => setMobileOpen(false)}
                 >

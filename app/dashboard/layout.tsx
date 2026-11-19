@@ -20,12 +20,14 @@ import {
 
 import { Logo } from "@/components/logo"
 import { RoleBadge } from "@/components/badges"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { DashboardSkeleton } from "@/components/dashboard-skeleton"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -192,7 +194,7 @@ export default function DashboardLayout({
   return (
     <div className="flex min-h-screen">
       {/* Desktop sidebar */}
-      <aside className="bg-muted/30 hidden w-60 shrink-0 flex-col border-r lg:flex">
+      <aside className="hidden w-60 shrink-0 flex-col border-r bg-muted/40 lg:flex">
         <div className="flex h-14 items-center border-b px-4">
           <Logo href={home} />
         </div>
@@ -200,7 +202,7 @@ export default function DashboardLayout({
           <NavItems role={role} pathname={pathname} />
         </div>
         <div className="border-t p-3">
-          <div className="bg-background flex items-center gap-2.5 rounded-lg p-2.5 shadow-sm">
+          <div className="flex items-center gap-2.5 rounded-lg bg-background p-2.5 shadow-sm">
             <Avatar className="size-8">
               <AvatarImage src={user.image ?? undefined} alt={user.name} />
               <AvatarFallback>{initials(user.name)}</AvatarFallback>
@@ -223,7 +225,7 @@ export default function DashboardLayout({
 
       {/* Main column */}
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="bg-background/85 sticky top-0 z-30 flex h-14 items-center gap-3 border-b px-4 backdrop-blur sm:px-6">
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b bg-background/85 px-4 backdrop-blur-md sm:px-6">
           {/* Mobile nav */}
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger
@@ -281,14 +283,21 @@ export default function DashboardLayout({
           </div>
 
           <div className="ml-auto flex items-center gap-2">
-            <Button render={<Link href="/" />} variant="ghost" size="sm">
+            <ThemeToggle />
+
+            <Button
+              render={<Link href="/" />}
+              nativeButton={false}
+              variant="ghost"
+              size="sm"
+            >
               <HomeIcon /> Home
             </Button>
 
             <DropdownMenu>
               <DropdownMenuTrigger
                 aria-label="Account menu"
-                className="focus-visible:ring-ring flex items-center gap-2 rounded-lg px-1.5 py-1 outline-none focus-visible:ring-2"
+                className="flex items-center gap-2 rounded-lg px-1.5 py-1 outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <Avatar className="size-8">
                   <AvatarImage src={user.image ?? undefined} alt={user.name} />
@@ -298,22 +307,24 @@ export default function DashboardLayout({
                   <span className="max-w-40 truncate text-sm font-medium">
                     {user.name}
                   </span>
-                  <span className="text-muted-foreground text-xs capitalize">
+                  <span className="text-xs text-muted-foreground capitalize">
                     {role}
                   </span>
                 </span>
-                <ChevronDownIcon className="text-muted-foreground hidden size-3.5 sm:block" />
+                <ChevronDownIcon className="hidden size-3.5 text-muted-foreground sm:block" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel className="flex flex-col gap-1">
-                  <span className="flex items-center gap-2">
-                    <span className="truncate">{user.name}</span>
-                    <RoleBadge role={role} />
-                  </span>
-                  <span className="text-muted-foreground truncate text-xs font-normal">
-                    {user.email}
-                  </span>
-                </DropdownMenuLabel>
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel className="flex flex-col gap-1">
+                    <span className="flex items-center gap-2">
+                      <span className="truncate">{user.name}</span>
+                      <RoleBadge role={role} />
+                    </span>
+                    <span className="truncate text-xs font-normal text-muted-foreground">
+                      {user.email}
+                    </span>
+                  </DropdownMenuLabel>
+                </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => router.push("/dashboard/profile")}

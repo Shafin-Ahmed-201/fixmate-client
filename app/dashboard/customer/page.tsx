@@ -98,7 +98,7 @@ export default function CustomerDashboardPage() {
 
   if (error) {
     return (
-      <p className="text-destructive py-16 text-center text-sm" role="alert">
+      <p className="py-16 text-center text-sm text-destructive" role="alert">
         {error}
       </p>
     )
@@ -147,11 +147,15 @@ export default function CustomerDashboardPage() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Overview</h1>
-          <p className="text-muted-foreground mt-1 text-sm">
+          <p className="mt-1 text-sm text-muted-foreground">
             Your repair activity at a glance.
           </p>
         </div>
-        <Button render={<Link href="/services" />} size="sm">
+        <Button
+          nativeButton={false}
+          render={<Link href="/services" />}
+          size="sm"
+        >
           <CalendarIcon /> Book a repair
         </Button>
       </div>
@@ -199,6 +203,7 @@ export default function CustomerDashboardPage() {
               <CardDescription>Your five latest requests</CardDescription>
             </div>
             <Button
+              nativeButton={false}
               render={<Link href="/dashboard/customer/bookings" />}
               variant="outline"
               size="xs"
@@ -231,7 +236,7 @@ export default function CustomerDashboardPage() {
                           <p className="truncate font-medium">
                             {booking.serviceTitle}
                           </p>
-                          <p className="text-muted-foreground truncate text-xs">
+                          <p className="truncate text-xs text-muted-foreground">
                             {booking.technicianName}
                           </p>
                         </TableCell>
@@ -263,7 +268,7 @@ export default function CustomerDashboardPage() {
           </CardHeader>
           <CardContent className="px-5">
             {statusCounts.length === 0 ? (
-              <p className="text-muted-foreground py-10 text-center text-sm">
+              <p className="py-10 text-center text-sm text-muted-foreground">
                 Nothing to chart yet.
               </p>
             ) : (

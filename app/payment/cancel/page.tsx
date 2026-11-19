@@ -14,15 +14,22 @@ export default function PaymentCancelPage() {
             <XCircleIcon className="size-8 text-red-600 dark:text-red-400" />
           </span>
           <h1 className="mt-4 text-xl font-medium">Checkout cancelled</h1>
-          <p className="text-muted-foreground mt-2 text-sm">
+          <p className="mt-2 text-sm text-muted-foreground">
             No charge was made. Your booking is still marked as unpaid — you can
             retry whenever you&apos;re ready.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Button render={<Link href="/dashboard/customer/bookings" />}>
+            <Button
+              nativeButton={false}
+              render={<Link href="/dashboard/customer/bookings" />}
+            >
               Back to bookings
             </Button>
-            <Button render={<Link href="/" />} variant="outline">
+            <Button
+              nativeButton={false}
+              render={<Link href="/" />}
+              variant="outline"
+            >
               <HomeIcon /> Back home
             </Button>
           </div>

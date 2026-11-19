@@ -81,11 +81,11 @@ export default function PaymentSuccessPage() {
         <CardContent className="flex flex-col items-center px-8 text-center">
           {state.kind === "checking" && (
             <>
-              <Loader2Icon className="text-primary size-12 animate-spin" />
+              <Loader2Icon className="size-12 animate-spin text-primary" />
               <h1 className="mt-4 text-xl font-medium">
                 Confirming your payment…
               </h1>
-              <p className="text-muted-foreground mt-2 text-sm">
+              <p className="mt-2 text-sm text-muted-foreground">
                 Hang tight while we verify the transaction with Stripe.
               </p>
             </>
@@ -97,13 +97,13 @@ export default function PaymentSuccessPage() {
                 <CheckCircle2Icon className="size-8 text-emerald-600 dark:text-emerald-400" />
               </span>
               <h1 className="mt-4 text-xl font-medium">Payment successful!</h1>
-              <p className="text-muted-foreground mt-2 text-sm">
+              <p className="mt-2 text-sm text-muted-foreground">
                 {state.alreadyPaid
                   ? "This payment was already recorded — you're all set."
                   : "Thank you — your receipt is now available in your payment history."}
               </p>
               {state.payment && (
-                <dl className="bg-muted/30 mt-5 w-full space-y-2 rounded-lg border p-4 text-left text-sm">
+                <dl className="mt-5 w-full space-y-2 rounded-lg border bg-muted/30 p-4 text-left text-sm">
                   <div className="flex justify-between gap-3">
                     <dt className="text-muted-foreground">Service</dt>
                     <dd className="truncate font-medium">
@@ -136,10 +136,17 @@ export default function PaymentSuccessPage() {
                 </dl>
               )}
               <div className="mt-6 flex flex-wrap justify-center gap-3">
-                <Button render={<Link href="/dashboard/customer/payments" />}>
+                <Button
+                  nativeButton={false}
+                  render={<Link href="/dashboard/customer/payments" />}
+                >
                   <ReceiptTextIcon /> View receipts
                 </Button>
-                <Button render={<Link href="/" />} variant="outline">
+                <Button
+                  nativeButton={false}
+                  render={<Link href="/" />}
+                  variant="outline"
+                >
                   <HomeIcon /> Back home
                 </Button>
               </div>
@@ -154,15 +161,22 @@ export default function PaymentSuccessPage() {
               <h1 className="mt-4 text-xl font-medium">
                 Payment not completed
               </h1>
-              <p className="text-muted-foreground mt-2 text-sm">
+              <p className="mt-2 text-sm text-muted-foreground">
                 It looks like the checkout wasn&apos;t finished. You can retry
                 from your bookings page.
               </p>
               <div className="mt-6 flex flex-wrap justify-center gap-3">
-                <Button render={<Link href="/dashboard/customer/bookings" />}>
+                <Button
+                  nativeButton={false}
+                  render={<Link href="/dashboard/customer/bookings" />}
+                >
                   Back to bookings
                 </Button>
-                <Button render={<Link href="/" />} variant="outline">
+                <Button
+                  nativeButton={false}
+                  render={<Link href="/" />}
+                  variant="outline"
+                >
                   <HomeIcon /> Back home
                 </Button>
               </div>
@@ -171,20 +185,24 @@ export default function PaymentSuccessPage() {
 
           {(state.kind === "failed" || state.kind === "no-session") && (
             <>
-              <span className="bg-muted flex size-16 items-center justify-center rounded-full">
-                <ReceiptTextIcon className="text-muted-foreground size-8" />
+              <span className="flex size-16 items-center justify-center rounded-full bg-muted">
+                <ReceiptTextIcon className="size-8 text-muted-foreground" />
               </span>
               <h1 className="mt-4 text-xl font-medium">Nothing to verify</h1>
-              <p className="text-muted-foreground mt-2 text-sm">
+              <p className="mt-2 text-sm text-muted-foreground">
                 {state.kind === "failed"
                   ? state.message
                   : "This page is only shown after a Stripe checkout. Pick a service to get started."}
               </p>
               <div className="mt-6 flex flex-wrap justify-center gap-3">
-                <Button render={<Link href="/services" />}>
+                <Button nativeButton={false} render={<Link href="/services" />}>
                   Browse services
                 </Button>
-                <Button render={<Link href="/" />} variant="outline">
+                <Button
+                  nativeButton={false}
+                  render={<Link href="/" />}
+                  variant="outline"
+                >
                   <HomeIcon /> Back home
                 </Button>
               </div>

@@ -2,8 +2,8 @@ import { Geist, Geist_Mono } from "next/font/google"
 
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
+import { Toaster } from "@/components/toaster"
 import { cn } from "@/lib/utils"
-import { Toaster } from "sonner"
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" })
 
@@ -40,7 +40,7 @@ export default function RootLayout({
       <body>
         <ThemeProvider>
           {children}
-          <Toaster position="top-right" richColors closeButton />
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

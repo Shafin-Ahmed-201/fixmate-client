@@ -105,7 +105,7 @@ export default function MyServicesPage() {
 
   if (error) {
     return (
-      <p className="text-destructive py-16 text-center text-sm" role="alert">
+      <p className="py-16 text-center text-sm text-destructive" role="alert">
         {error}
       </p>
     )
@@ -133,12 +133,13 @@ export default function MyServicesPage() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">My services</h1>
-          <p className="text-muted-foreground mt-1 text-sm">
+          <p className="mt-1 text-sm text-muted-foreground">
             {services.length} service{services.length === 1 ? "" : "s"} in your
             catalogue
           </p>
         </div>
         <Button
+          nativeButton={false}
           render={<Link href="/dashboard/technician/add-service" />}
           size="sm"
         >
@@ -153,6 +154,7 @@ export default function MyServicesPage() {
           description="Create your first service listing to start receiving booking requests."
         >
           <Button
+            nativeButton={false}
             render={<Link href="/dashboard/technician/add-service" />}
             className="mt-4"
           >
@@ -163,7 +165,7 @@ export default function MyServicesPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {services.map((service) => (
             <Card key={service._id} className="h-full gap-0 py-0">
-              <div className="bg-muted aspect-video overflow-hidden">
+              <div className="aspect-video overflow-hidden bg-muted">
                 {service.image ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -172,7 +174,7 @@ export default function MyServicesPage() {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="text-muted-foreground flex h-full w-full items-center justify-center">
+                  <div className="flex h-full w-full items-center justify-center text-muted-foreground">
                     <WrenchIcon className="size-8" />
                   </div>
                 )}
@@ -189,7 +191,7 @@ export default function MyServicesPage() {
                   {formatCurrency(service.basePrice)}
                 </p>
                 <ApprovalBadge status={service.approvalStatus} />
-                <p className="text-muted-foreground text-xs">
+                <p className="text-xs text-muted-foreground">
                   {service.serviceMode} · {service.estimatedDuration}
                 </p>
               </CardContent>
@@ -203,7 +205,7 @@ export default function MyServicesPage() {
                     }
                     aria-label="Availability"
                   />
-                  <span className="text-muted-foreground text-xs">
+                  <span className="text-xs text-muted-foreground">
                     {service.isAvailable ? "Available" : "Paused"}
                   </span>
                 </div>
@@ -409,7 +411,7 @@ function EditServiceForm({
         <div className="space-y-1.5">
           <Label htmlFor="edit-price">Base price *</Label>
           <div className="relative">
-            <span className="text-muted-foreground pointer-events-none absolute inset-y-0 left-2.5 flex items-center text-xs">
+            <span className="pointer-events-none absolute inset-y-0 left-2.5 flex items-center text-xs text-muted-foreground">
               USD
             </span>
             <Input
